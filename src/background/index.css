@@ -1,0 +1,9 @@
+christmasxp-yolohero-background {
+  display: block;
+  position: relative;
+}
+
+christmasxp-yolohero-background canvas {
+  width: 100%;
+  height: 100%;
+}
