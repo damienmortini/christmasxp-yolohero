@@ -4,6 +4,7 @@ import Loader from "dlib/utils/Loader.js";
 
 import "../background/index.js";
 import "../player/index.js";
+import "../camera/index.js";
 
 let template = document.createElement("template");
 Loader.load("src/main/template.html").then((value) => {

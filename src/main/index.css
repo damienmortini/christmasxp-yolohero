@@ -6,6 +6,13 @@ christmasxp-yolohero-main {
   position: relative;
 }
 
+christmasxp-yolohero-main christmasxp-yolohero-camera {
+  position: absolute;
+  top: 0;
+  width: 20vw;
+  height: 20vh;
+}
+
 christmasxp-yolohero-main christmasxp-yolohero-background {
   width: 100%;
   height: 100%;
