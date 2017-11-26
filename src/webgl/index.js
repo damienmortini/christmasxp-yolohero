@@ -27,10 +27,8 @@ Loader.onLoad.then(() => {
         antialias: true
       });
 
-      this.gl.enable(this.gl.CULL_FACE);
-
       this.camera = new Camera({gl: this.gl});
-      // this.view = new View({gl: this.gl});
+      this.view = new View({gl: this.gl});
 
       window.addEventListener("resize", this._resizeBinded = this.resize.bind(this));
 
@@ -48,12 +46,12 @@ Loader.onLoad.then(() => {
       this.canvas.width = width * window.devicePixelRatio;
       this.canvas.height = height * window.devicePixelRatio;
 
-      // this.view.resize(width, height);
+      this.view.resize(width, height);
     }
 
     update() {
       this.camera.update();
-      // this.view.update();
+      this.view.update();
     }
   });
 });

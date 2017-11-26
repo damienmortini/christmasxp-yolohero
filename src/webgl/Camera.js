@@ -14,17 +14,17 @@ export default class Camera {
     this.video = document.createElement("video");
     this.video.autoplay = true;
 
+    this.motionRatio = 0;
+
     this._mesh = new GLMesh({
       gl: this.gl,
       attributes: [
         ["position", {
           data: new Float32Array([
+            -1, -1,
             -1, 1,
-            -1, -1,
-            1, 1,
-            1, 1,
-            -1, -1,
             1, -1,
+            1, 1
           ]),
           size: 2
         }],
@@ -33,9 +33,7 @@ export default class Camera {
             0, 1,
             0, 0,
             1, 1,
-            1, 1,
-            0, 0,
-            1, 0,
+            1, 0
           ]),
           size: 2
         }]
@@ -73,7 +71,7 @@ export default class Camera {
           out vec2 vUv;
         `],
         ["end", `
-          vec2 uv = vec2(uv.x, 1. - uv.y);
+          vec2 uv = vec2(1. - uv.x, uv.y);
           vUv = uv;
           gl_Position = vec4(position, 0., 1.);
         `]
@@ -89,7 +87,6 @@ export default class Camera {
         ["end", `
           fragColor = texture(videoTexture, vUv);
           fragColor.rgb = vec3((fragColor.r + fragColor.g + fragColor.b) / 3.);
-          fragColor.r = .5;
         `]
       ]
     });
@@ -145,7 +142,7 @@ export default class Camera {
     });
     this.endProgram.attributes.set(this._mesh.attributes);
 
-    this.testProgram = new GLProgram({
+    this.debugProgram = new GLProgram({
       gl: this.gl,
       vertexShaderChunks: [
         ["start", `
@@ -170,11 +167,10 @@ export default class Camera {
         `],
         ["end", `
           fragColor.rgb = texture(frame, vUv).rgb;
-          fragColor.r = 1.;
         `]
       ]
     });
-    this.testProgram.attributes.set(this._mesh.attributes);
+    this.debugProgram.attributes.set(this._mesh.attributes);
 
     navigator.mediaDevices.getUserMedia({ audio: false, video: { width: window.innerWidth * .2, height: window.innerHeight * .2, facingMode: "user" } }).then((stream) => {
       this.video.srcObject = stream;
@@ -189,58 +185,63 @@ export default class Camera {
     }
 
     this._mesh.bind();
+    this.program.attributes.set(this._mesh.attributes);    
 
-    // this.frameBuffers[0].bind();
+    this.gl.disable(this.gl.CULL_FACE);  
+    this.gl.disable(this.gl.DEPTH_TEST);
+
+    this.frameBuffers[0].bind();
     this.videoTexture.data = this.video;
     this.program.use();
     this.program.uniforms.set("videoTexture", 0);
     this.draw({
-      // width: FRAME_BUFFER_SIZE,
-      // height: FRAME_BUFFER_SIZE
+      width: FRAME_BUFFER_SIZE,
+      height: FRAME_BUFFER_SIZE
     });
-    // this.frameBuffers[0].unbind();
+    this.frameBuffers[0].unbind();
 
-    // for (let i = 0; i < BLUR_PASSES; i++) {
-    //   for (let i = 0; i < 2; i++) {
-    //     this.frameBuffers[(i + 1) % 2].bind();
-    //     this.blurProgram.use();
-    //     this.frameBuffers[i].colorTextures[0].bind();
-    //     this.blurProgram.uniforms.set("blurDistance", [(i + 1) % 2, i]);
-    //     this.draw({
-    //       width: FRAME_BUFFER_SIZE,
-    //       height: FRAME_BUFFER_SIZE
-    //     });
-    //     this.frameBuffers[(i + 1) % 2].unbind();
-    //   }
-    // }
+    for (let i = 0; i < BLUR_PASSES; i++) {
+      for (let i = 0; i < 2; i++) {
+        this.frameBuffers[(i + 1) % 2].bind();
+        this.blurProgram.use();
+        this.frameBuffers[i].colorTextures[0].bind();
+        this.blurProgram.uniforms.set("blurDistance", [(i + 1) % 2, i]);
+        this.draw({
+          width: FRAME_BUFFER_SIZE,
+          height: FRAME_BUFFER_SIZE
+        });
+        this.frameBuffers[(i + 1) % 2].unbind();
+      }
+    }
 
-    // this.frameBuffers[3].bind();
-    // this.endProgram.use();
-    // this.frameBuffers[1].colorTextures[0].bind();
-    // this.endProgram.uniforms.set("frame", 0);
-    // this.frameBuffers[2].colorTextures[0].bind({
-    //   unit: 1
-    // });
-    // this.endProgram.uniforms.set("previousFrame", 1);
-    // this.draw({
-    //   width: 1,
-    //   height: 1
-    // });
+    this.frameBuffers[3].bind();
+    this.endProgram.use();
+    this.frameBuffers[1].colorTextures[0].bind();
+    this.endProgram.uniforms.set("frame", 0);
+    this.frameBuffers[2].colorTextures[0].bind({
+      unit: 1
+    });
+    this.endProgram.uniforms.set("previousFrame", 1);
+    this.draw({
+      width: 1,
+      height: 1
+    });
 
-    // const pixels = new Uint8Array(4);
-    // this.gl.readPixels(0, 0, 1, 1, this.gl.RGBA, this.gl.UNSIGNED_BYTE, pixels);
-    // if(pixels[0] / 255 * 100 > 1.5) {
-    //   console.log("moving");
-    // }
+    const pixels = new Uint8Array(4);
+    this.gl.readPixels(0, 0, 1, 1, this.gl.RGBA, this.gl.UNSIGNED_BYTE, pixels);
+    this.motionRatio = pixels[0] / 255 * 100;
+    if(this.motionRatio > 1) {
+      console.log("moving");
+    }
 
-    // this.frameBuffers[3].unbind();
+    this.frameBuffers[3].unbind();
 
-    // this.testProgram.use();
-    // this.frameBuffers[1].colorTextures[0].bind();
-    // this.testProgram.uniforms.set("frame", 0);
-    // this.draw();
+    // this.debugProgram.use();
+    // this.frameBuffers[2].colorTextures[0].bind();
+    // this.debugProgram.uniforms.set("frame", 0);
+    this.draw();
 
-    // [this.frameBuffers[1], this.frameBuffers[2]] = [this.frameBuffers[2], this.frameBuffers[1]];
+    [this.frameBuffers[1], this.frameBuffers[2]] = [this.frameBuffers[2], this.frameBuffers[1]];
   }
 
   draw({
@@ -249,8 +250,8 @@ export default class Camera {
   } = {}) {
     this.gl.viewport(0, 0, width, height);
     this._mesh.draw({
-      mode: this.gl.TRIANGLES,
-      count: 6
+      mode: this.gl.TRIANGLE_STRIP,
+      count: 4
     });
   }
 }

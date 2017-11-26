@@ -15,10 +15,6 @@ export default class View {
       distance: 5
     });
 
-    this.gl.clearColor(0, 0, 0, 1);
-    this.gl.enable(this.gl.CULL_FACE);
-    // this.gl.enable(this.gl.DEPTH_TEST);
-
     this.program = new GLProgram({
       gl: this.gl,
       uniforms: [
@@ -72,16 +68,20 @@ export default class View {
   }
  
   update() {
-    this.gl.viewport(0, 0, this.gl.drawingBufferWidth, this.gl.drawingBufferHeight);
-    this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
+    this.gl.clearColor(0, 0, 0, 1);
+    this.gl.enable(this.gl.CULL_FACE);
+    this.gl.enable(this.gl.DEPTH_TEST);
+
+    this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
 
     this.cameraController.update();
     
+    this.mesh.bind();
+
     this.program.use();
     this.program.uniforms.set("projectionView", this.camera.projectionView);
     this.program.attributes.set(this.mesh.attributes);
 
-    this.mesh.bind();
     this.mesh.draw();
   }
 }
