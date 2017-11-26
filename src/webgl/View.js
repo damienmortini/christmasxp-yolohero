@@ -5,13 +5,8 @@ import Camera from "dlib/3d/Camera.js";
 import TrackballController from "dlib/3d/controllers/TrackballController.js";
 
 export default class View {
-  constructor({canvas} = {}) {
-    this.canvas = canvas;
-    this.gl = this.canvas.getContext("webgl", {
-      depth: true,
-      alpha: false,
-      antialias: true
-    });
+  constructor({gl} = {}) {
+    this.gl = gl;
 
     this.camera = new Camera();
 
@@ -22,7 +17,7 @@ export default class View {
 
     this.gl.clearColor(0, 0, 0, 1);
     this.gl.enable(this.gl.CULL_FACE);
-    this.gl.enable(this.gl.DEPTH_TEST);
+    // this.gl.enable(this.gl.DEPTH_TEST);
 
     this.program = new GLProgram({
       gl: this.gl,
@@ -34,10 +29,10 @@ export default class View {
           uniform mat4 projectionView;
           uniform mat4 transform;
 
-          attribute vec3 normal;
-          attribute vec3 position;
+          in vec3 normal;
+          in vec3 position;
 
-          varying vec3 vNormal;
+          out vec3 vNormal;
         `],
         ["end", `
           gl_Position = projectionView * transform * vec4(position, 1.);
@@ -47,10 +42,10 @@ export default class View {
       fragmentShaderChunks: [
         ["start", `
           precision highp float;
-          varying vec3 vNormal;
+          in vec3 vNormal;
         `],
         ["end", `
-          gl_FragColor = vec4(vNormal * .5 + .5, 1.);
+          fragColor = vec4(vNormal * .5 + .5, 1.);
         `]
       ]
     });

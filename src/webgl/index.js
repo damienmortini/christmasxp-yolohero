@@ -3,15 +3,16 @@ import "@webcomponents/custom-elements";
 import LoopElement from "dlib/customelements/LoopElement.js";
 import Loader from "dlib/utils/Loader.js";
 
+import Camera from "./Camera.js";
 import View from "./View.js";
 
 let template = document.createElement("template");
-Loader.load("src/background/template.html").then((value) => {
+Loader.load("src/webgl/template.html").then((value) => {
   template.innerHTML = value;
 });
 
 Loader.onLoad.then(() => {
-  window.customElements.define("christmasxp-yolohero-background", class extends LoopElement {
+  window.customElements.define("christmasxp-yolohero-webgl", class extends LoopElement {
     connectedCallback() {
       super.connectedCallback();
 
@@ -20,7 +21,16 @@ Loader.onLoad.then(() => {
 
       this.canvas = this.querySelector("canvas");
 
-      this.view = new View({canvas: this.canvas});
+      this.gl = this.canvas.getContext(WebGL2RenderingContext ? "webgl2" : "webgl", {
+        depth: true,
+        alpha: false,
+        antialias: true
+      });
+
+      this.gl.enable(this.gl.CULL_FACE);
+
+      this.camera = new Camera({gl: this.gl});
+      // this.view = new View({gl: this.gl});
 
       window.addEventListener("resize", this._resizeBinded = this.resize.bind(this));
 
@@ -38,11 +48,12 @@ Loader.onLoad.then(() => {
       this.canvas.width = width * window.devicePixelRatio;
       this.canvas.height = height * window.devicePixelRatio;
 
-      this.view.resize(width, height);
+      // this.view.resize(width, height);
     }
 
     update() {
-      this.view.update();
+      this.camera.update();
+      // this.view.update();
     }
   });
 });

@@ -1,9 +1,9 @@
-christmasxp-yolohero-background {
+christmasxp-yolohero-webgl {
   display: block;
   position: relative;
 }
 
-christmasxp-yolohero-background canvas {
+christmasxp-yolohero-webgl canvas {
   width: 100%;
   height: 100%;
 }
