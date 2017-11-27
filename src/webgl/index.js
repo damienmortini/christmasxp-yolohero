@@ -28,7 +28,10 @@ Loader.onLoad.then(() => {
       });
 
       this.camera = new Camera({gl: this.gl});
-      this.view = new View({gl: this.gl});
+      this.view = new View({
+        gl: this.gl,
+        webcam: this.camera
+      });
 
       window.addEventListener("resize", this._resizeBinded = this.resize.bind(this));
 

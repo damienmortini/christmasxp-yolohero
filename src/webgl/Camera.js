@@ -3,6 +3,7 @@ import GLTexture from "dlib/gl/GLTexture.js";
 import GLProgram from "dlib/gl/GLProgram.js";
 import BlurShader from "dlib/shaders/BlurShader.js";
 import GLMesh from "dlib/gl/GLMesh.js";
+import Ticker from "dlib/utils/Ticker.js";
 
 const FRAME_BUFFER_SIZE = 256;
 const BLUR_PASSES = 4;
@@ -54,7 +55,9 @@ export default class Camera {
           gl: this.gl,
           minFilter: this.gl.LINEAR,
           width: i === 3 ? 1 : FRAME_BUFFER_SIZE,
-          height: i === 3 ? 1 : FRAME_BUFFER_SIZE
+          height: i === 3 ? 1 : FRAME_BUFFER_SIZE,
+          wrapS: this.gl.CLAMP_TO_EDGE,
+          wrapT: this.gl.CLAMP_TO_EDGE,
         })
       });
       frameBuffer.unbind();
@@ -86,7 +89,6 @@ export default class Camera {
         `],
         ["end", `
           fragColor = texture(videoTexture, vUv);
-          fragColor.rgb = vec3((fragColor.r + fragColor.g + fragColor.b) / 3.);
         `]
       ]
     });
@@ -229,19 +231,23 @@ export default class Camera {
 
     const pixels = new Uint8Array(4);
     this.gl.readPixels(0, 0, 1, 1, this.gl.RGBA, this.gl.UNSIGNED_BYTE, pixels);
-    this.motionRatio = pixels[0] / 255 * 100;
-    if(this.motionRatio > 1) {
-      console.log("moving");
-    }
+
+    let motionRatio = pixels[0] / 255 * 100;
+    motionRatio = motionRatio || (this.motionRatio * .8);
+    this.motionRatio += (motionRatio - this.motionRatio) * .1;
 
     this.frameBuffers[3].unbind();
 
     // this.debugProgram.use();
     // this.frameBuffers[2].colorTextures[0].bind();
     // this.debugProgram.uniforms.set("frame", 0);
-    this.draw();
+    // this.draw();
 
     [this.frameBuffers[1], this.frameBuffers[2]] = [this.frameBuffers[2], this.frameBuffers[1]];
+  }
+
+  get frameTexture() {
+    return this.frameBuffers[2].colorTextures[0];
   }
 
   draw({

@@ -1,17 +1,25 @@
 import GLMesh from "dlib/gl/GLMesh.js";
 import GLProgram from "dlib/gl/GLProgram.js";
+import { hexToRGB } from "dlib/math/Color.js";
 
 export default class Background {
-  constructor({gl}) {
+  constructor({
+    gl,
+    webcam
+  }) {
+
+    this.gl = gl;
+    this.webcam = webcam;
+
     this._mesh = new GLMesh({
       gl: this.gl,
       attributes: [
         ["position", {
           data: new Float32Array([
-            -1, -1,
             -1, 1,
+            -1, -1,
+            1, 1,
             1, -1,
-            1, 1
           ]),
           size: 2
         }],
@@ -46,23 +54,43 @@ export default class Background {
       fragmentShader: `#version 300 es
         precision highp float;
 
-        uniform sampler2D data;
+        uniform vec3 colors[3];
+
+        uniform float motion;
+        uniform sampler2D webcam;
 
         in vec2 vUv;
 
         out vec4 fragColor;
 
         void main() {
-          fragColor = texture(data, vUv);
-          fragColor.rgb *= fragColor.a;
+          fragColor = texture(webcam, vUv);
+          float grey = (fragColor.r + fragColor.g + fragColor.b) / 3.;
+          fragColor.rgb = mix(colors[0], colors[1], smoothstep(0., .33, grey));
+          fragColor.rgb = mix(fragColor.rgb, colors[2], smoothstep(.33, .66, grey));
+          // fragColor.rgb = mix(colors[0], colors[1], step(.33, grey));
+          // fragColor.rgb = mix(fragColor.rgb, colors[2], step(.66, grey));
+          fragColor.rgb += .5 * motion;
         }
       `
     });
-    this.program.attributes.set(this._mesh.attributes);
+
+    this.program.use();
+    this.program.uniforms.set("colors", [
+      hexToRGB("#f9ef03"),
+      hexToRGB("#f2018c"),
+      hexToRGB("#02aef0"),
+    ]);
   }
 
   draw() {
     this.program.use();
-    this._mesh.draw();
+    this.webcam.frameTexture.bind();
+    this.program.attributes.set(this._mesh.attributes);
+    this.program.uniforms.set("motion", this.webcam.motionRatio);
+    this._mesh.draw({
+      mode: this.gl.TRIANGLE_STRIP,
+      count: 4
+    });
   }
 }
