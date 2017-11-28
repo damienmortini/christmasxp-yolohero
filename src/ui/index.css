@@ -1,0 +1,18 @@
+christmasxp-yolohero-ui {
+  display: block;
+  position: relative;
+}
+
+christmasxp-yolohero-ui .side {
+  position: absolute;
+  top: 50%;
+  transform: translate(0, -50%)
+}
+
+christmasxp-yolohero-ui .side.left {
+  left: 2%;
+}
+
+christmasxp-yolohero-ui .side.right {
+  right: 2%;
+}

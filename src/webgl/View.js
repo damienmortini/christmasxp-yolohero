@@ -8,6 +8,7 @@ import Background from "./Background.js";
 import Loader from "dlib/utils/Loader.js";
 import ActionTexts from "./ActionTexts.js";
 import MainText from "./MainText.js";
+import UI from "./ui/UI.js";
 
 Loader.load("src/Shrikhand-Regular.ttf");
 
@@ -42,10 +43,17 @@ export default class View {
       gl: this.gl,
       player
     });
+
+    this.ui = new UI({
+      gl: this.gl,
+      player
+    });
   }
 
-  resize(width, height) {
+  resize({width, height}) {
     this.camera.aspectRatio = width / height;
+    this.actionTexts.resize({width, height});
+    this.ui.resize({width, height});
     this.update();
   }
  
@@ -59,11 +67,15 @@ export default class View {
     
     this.background.draw();
 
-    this.mainText.draw({
+    this.actionTexts.draw({
       camera: this.camera
     });
 
-    this.actionTexts.draw({
+    this.ui.draw({
+      camera: this.camera
+    });
+
+    this.mainText.draw({
       camera: this.camera
     });
   }

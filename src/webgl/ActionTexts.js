@@ -83,13 +83,19 @@ export default class ActionTexts {
     }
   }
 
+  resize({width, height}) {
+    this._width = width;
+  }
+
   draw({camera} = {}) {
     for (let action of this.player.actions) {
       const text = this._texts.get(action);
       if(!text) {
         continue;
       }
+      text.transform.identity();
       text.transform.y = (this.player.currentTime - action[0]) * 5;
+      text.transform.scale(1 + Math.max(0, 1. - Math.abs(text.transform.y) * 3));
       text.opacity = Math.max(0, 1. - Math.abs(text.transform.y) * .2);
     }
 
@@ -105,15 +111,15 @@ export default class ActionTexts {
       DEFAULT_TEXT.program.uniforms.set("scaleOffset", textureData.scaleOffset);
 
       for (let text of textsArray) {
-        for (let i = 0; i < 2; i++) {
-          text.transform.x = (i * 2 - 1) * window.innerWidth * .005;
+        // for (let i = 0; i < 2; i++) {
+          // text.transform.x = (i * 2 - 1) * this._width * .005;
           DEFAULT_TEXT.program.uniforms.set("opacity", text.opacity);
           DEFAULT_TEXT.program.uniforms.set("transform", text.transform);
           DEFAULT_TEXT.mesh.draw({
             mode: this.gl.TRIANGLE_STRIP,
             count: 4
           });
-        }
+        // }
       }
     }
     this.gl.disable(this.gl.BLEND);

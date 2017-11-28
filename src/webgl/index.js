@@ -53,7 +53,7 @@ Loader.onLoad.then(() => {
       this.canvas.width = width * window.devicePixelRatio;
       this.canvas.height = height * window.devicePixelRatio;
 
-      this.view.resize(width, height);
+      this.view.resize({width, height});
     }
 
     update() {

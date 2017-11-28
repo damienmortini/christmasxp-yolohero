@@ -1,5 +1,6 @@
 @import "../webgl/index.css";
 @import "../player/index.css";
+@import "../ui/index.css";
 
 christmasxp-yolohero-main {
   display: block;
@@ -15,4 +16,12 @@ christmasxp-yolohero-main christmasxp-yolohero-player {
   position: absolute;
   top: 0;
   left: 0;
+}
+
+christmasxp-yolohero-main christmasxp-yolohero-ui {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
 }

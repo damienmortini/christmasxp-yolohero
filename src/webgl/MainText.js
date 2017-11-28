@@ -50,10 +50,8 @@ export default class MainText extends GLText {
       data = [data]
     }
     if(data[0]) {
-      // this.lock = true;
-      // this.font = `${240 * (data[1] || 1)}px Shrikhand-Regular`;
-      // this.lock = false;
       this.textContent = data[0];
+      TweenLite.killAll(this);
       TweenLite.fromTo(this, .2, {
         _opacity: 0,
         _scale: 0
@@ -62,6 +60,11 @@ export default class MainText extends GLText {
         _scale: data[1] || 1,
         ease: Back.easeOut
       })
+      TweenLite.to(this, .2, {
+        _opacity: 0,
+        _scale: 0,
+        delay: 3
+      })
     }
   }
 
@@ -69,6 +72,7 @@ export default class MainText extends GLText {
     this.gl.enable(this.gl.BLEND);
     this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
     this.transform.identity();
+    this.transform.y = 3;
     this.transform.scale(this._scale);
     this.program.use();
     this.program.uniforms.set("opacity", this._opacity);
