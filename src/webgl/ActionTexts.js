@@ -5,7 +5,7 @@ import Vector4 from "dlib/math/Vector4.js";
 
 let DEFAULT_TEXT;
 
-export default class Texts {
+export default class ActionTexts {
   constructor({
     gl,
     player
@@ -16,13 +16,13 @@ export default class Texts {
     if(!DEFAULT_TEXT) {
       DEFAULT_TEXT = new GLText({
         gl: this.gl,
-        scale: .25,
+        textScale: .25,
         textAlign: "center",
         textContent: "Move",
         fillStyle: "white",
         // font: "100px Shrikhand-Regular",
-        paddingX: 4,
-        paddingY: 40
+        paddingX: .2,
+        paddingY: .2
       });
       DEFAULT_TEXT.program.add({
         fragmentShaderChunks: [

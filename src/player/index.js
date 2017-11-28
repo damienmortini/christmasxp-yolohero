@@ -5,6 +5,7 @@ import Loader from "dlib/utils/Loader.js";
 import YouTubeAPI from "dlib/api/YouTubeAPI.js";
 import Keyboard from "dlib/input/Keyboard.js";
 import GUI from "dlib/gui/GUI.js";
+import Signal from "dlib/utils/Signal.js";
 import { INTRO, RAP } from "./data.js";
 
 const MUTE = GUI.add({value: false}, "value", {label: "Mute", reload: true}).value;
@@ -46,8 +47,11 @@ Loader.onLoad.then(() => {
       let templateClone = document.importNode(template.content, true);
       this.appendChild(templateClone);
 
+      this.onActionChange = new Signal();
+
       this.bpm = 0;
       this.currentTime = 0;
+      this.action = [-1];
 
       this._previousBeatTime = 0;
       this._currentSliceStartTime = 0;
@@ -61,7 +65,7 @@ Loader.onLoad.then(() => {
           playerVars: {
             autoplay: 1,
             // controls: 0,
-            start: START_TIME
+            start: Math.floor(START_TIME)
           },
           events: {
             onReady: (e) => {
@@ -106,6 +110,13 @@ Loader.onLoad.then(() => {
       }
 
       this.currentTime = currentTime - START_TIME;
+
+      for (let action of this.actions) {
+        if(action[0] > this.action[0] && action[0] < this.currentTime && this.action !== action) {
+          this.action = action;
+          this.onActionChange.dispatch(this.action);
+        }
+      }
       
       // if(currentTime - this._previousBeatTime > 60 / this.bpm) {
       //   this._previousBeatTime = this.youtubePlayer.getCurrentTime();

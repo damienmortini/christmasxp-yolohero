@@ -6,7 +6,8 @@ import Camera from "dlib/3d/Camera.js";
 import TrackballController from "dlib/3d/controllers/TrackballController.js";
 import Background from "./Background.js";
 import Loader from "dlib/utils/Loader.js";
-import Texts from "./Texts.js";
+import ActionTexts from "./ActionTexts.js";
+import MainText from "./MainText.js";
 
 Loader.load("src/Shrikhand-Regular.ttf");
 
@@ -32,7 +33,12 @@ export default class View {
       webcam: this.webcam
     });
 
-    this.texts = new Texts({
+    this.actionTexts = new ActionTexts({
+      gl: this.gl,
+      player
+    });
+    
+    this.mainText = new MainText({
       gl: this.gl,
       player
     });
@@ -53,7 +59,11 @@ export default class View {
     
     this.background.draw();
 
-    this.texts.draw({
+    this.mainText.draw({
+      camera: this.camera
+    });
+
+    this.actionTexts.draw({
       camera: this.camera
     });
   }
