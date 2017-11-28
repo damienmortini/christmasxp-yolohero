@@ -4,7 +4,10 @@ import LoopElement from "dlib/customelements/LoopElement.js";
 import Loader from "dlib/utils/Loader.js";
 import YouTubeAPI from "dlib/api/YouTubeAPI.js";
 import Keyboard from "dlib/input/Keyboard.js";
+import GUI from "dlib/gui/GUI.js";
 import { INTRO, RAP } from "./data.js";
+
+const MUTE = GUI.add({value: false}, "value", {label: "Mute", reload: true}).value;
 
 let template = document.createElement("template");
 Loader.load("src/player/template.html").then((value) => {
@@ -62,7 +65,10 @@ Loader.onLoad.then(() => {
           },
           events: {
             onReady: (e) => {
-              e.target.playVideo();
+              if(MUTE) {
+                this.youtubePlayer.mute();
+              }
+              this.youtubePlayer.playVideo();
             },
             onStateChange: (e) => {
 

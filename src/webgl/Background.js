@@ -79,7 +79,7 @@ export default class Background {
           // fragColor.rgb = mix(fragColor.rgb, colors[2], step(.7, grey));
           // fragColor.rgb = mix(fragColor.rgb, colors[0], step(.8, grey));
           // fragColor.rgb = mix(fragColor.rgb, colors[1], step(.9, grey));
-          // fragColor.rgb += .5 * motion;
+          fragColor.rgb += .5 * motion;
         }
       `
     });

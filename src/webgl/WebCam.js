@@ -54,6 +54,8 @@ export default class WebCam {
         texture: new GLTexture({
           gl: this.gl,
           minFilter: this.gl.LINEAR,
+          internalformat: i === 3 ? this.gl.R8 : this.gl.RGB,
+          format: i === 3 ? this.gl.RED : this.gl.RGB,
           width: i === 3 ? 1 : FRAME_BUFFER_SIZE,
           height: i === 3 ? 1 : FRAME_BUFFER_SIZE,
           wrapS: this.gl.CLAMP_TO_EDGE,
@@ -229,10 +231,12 @@ export default class WebCam {
       height: 1
     });
 
-    const pixels = new Uint8Array(4);
-    this.gl.readPixels(0, 0, 1, 1, this.gl.RGBA, this.gl.UNSIGNED_BYTE, pixels);
+    let motionRatio = 0;
 
-    let motionRatio = pixels[0] / 255 * 100;
+    const pixels = new Uint8Array(1);
+    this.gl.readPixels(0, 0, 1, 1, this.gl.RED, this.gl.UNSIGNED_BYTE, pixels);
+    motionRatio = pixels[0] / 255 * 100;
+
     motionRatio = motionRatio || (this.motionRatio * .8);
     this.motionRatio += (motionRatio - this.motionRatio) * .1;
 
