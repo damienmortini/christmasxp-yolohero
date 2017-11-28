@@ -16,7 +16,7 @@ export default class ActionTexts {
     if(!DEFAULT_TEXT) {
       DEFAULT_TEXT = new GLText({
         gl: this.gl,
-        textScale: .25,
+        textScale: .5,
         textAlign: "center",
         textContent: "Move",
         fillStyle: "white",
@@ -96,7 +96,7 @@ export default class ActionTexts {
       text.transform.identity();
       text.transform.y = (this.player.currentTime - action[0]) * 5;
       text.transform.scale(1 + Math.max(0, 1. - Math.abs(text.transform.y) * 3));
-      text.opacity = Math.max(0, 1. - Math.abs(text.transform.y) * .2);
+      text.opacity = Math.max(0, 1. - Math.abs(text.transform.y) * .1);
     }
 
     this.gl.enable(this.gl.BLEND);
