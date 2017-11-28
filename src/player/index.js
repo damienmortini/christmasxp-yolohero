@@ -4,6 +4,7 @@ import LoopElement from "dlib/customelements/LoopElement.js";
 import Loader from "dlib/utils/Loader.js";
 import YouTubeAPI from "dlib/api/YouTubeAPI.js";
 import Keyboard from "dlib/input/Keyboard.js";
+import { INTRO, RAP } from "./data.js";
 
 let template = document.createElement("template");
 Loader.load("src/player/template.html").then((value) => {
@@ -13,13 +14,26 @@ Loader.load("src/player/template.html").then((value) => {
 const START_TIME = 30;
 
 const SLICES = new Map([
-  [30, {
-    bpm: 128
+  ["intro", {
+    startTime: START_TIME,
+    bpm: 128,
+    data: INTRO,
+    timings: []
   }],
-  [45.4, {
-    bpm: 128
+  ["rap", {
+    startTime: 45.4,
+    bpm: 128,
+    data: RAP,
+    timings: []
   }]
 ]);
+
+const ACTIONS = [];
+for (let slice of SLICES.values()) {
+  for (let [i, data] of slice.data.entries()) {
+    ACTIONS.push([slice.startTime + i * 60 / slice.bpm - START_TIME, ...data])
+  }
+}
 
 Loader.onLoad.then(() => {
   window.customElements.define("christmasxp-yolohero-player", class extends LoopElement {
@@ -30,7 +44,7 @@ Loader.onLoad.then(() => {
       this.appendChild(templateClone);
 
       this.bpm = 0;
-      this.time = 0;
+      this.currentTime = 0;
 
       this._previousBeatTime = 0;
       this._currentSliceStartTime = 0;
@@ -65,6 +79,10 @@ Loader.onLoad.then(() => {
       // });
     }
 
+    get actions() {
+      return ACTIONS;
+    }
+
     update() {
       if(!this.youtubePlayer || !this.youtubePlayer.getCurrentTime) {
         return;
@@ -72,16 +90,16 @@ Loader.onLoad.then(() => {
 
       const currentTime = this.youtubePlayer.getCurrentTime();
 
-      for (let [key, slice] of SLICES) {
-        if(key < this._currentSliceStartTime || currentTime < key || slice === this._currentSlice) {
+      for (let slice of SLICES.values()) {
+        if(slice.startTime < this._currentSliceStartTime || currentTime < slice.startTime || slice === this._currentSlice) {
           continue;
         }
-        this._currentSliceStartTime = key;
+        this._currentSliceStartTime = slice.startTime;
         this.bpm = slice.bpm;
         this._previousBeatTime = this._currentSliceStartTime;
       }
 
-      this.time = currentTime - this._currentSliceStartTime;
+      this.currentTime = currentTime - START_TIME;
       
       // if(currentTime - this._previousBeatTime > 60 / this.bpm) {
       //   this._previousBeatTime = this.youtubePlayer.getCurrentTime();

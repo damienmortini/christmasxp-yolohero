@@ -68,9 +68,18 @@ export default class Background {
           float grey = (fragColor.r + fragColor.g + fragColor.b) / 3.;
           fragColor.rgb = mix(colors[0], colors[1], smoothstep(0., .33, grey));
           fragColor.rgb = mix(fragColor.rgb, colors[2], smoothstep(.33, .66, grey));
-          // fragColor.rgb = mix(colors[0], colors[1], step(.33, grey));
-          // fragColor.rgb = mix(fragColor.rgb, colors[2], step(.66, grey));
-          fragColor.rgb += .5 * motion;
+          // fragColor.rgb = colors[0];
+          // fragColor.rgb = mix(fragColor.rgb, colors[1], step(.1, grey));
+          // fragColor.rgb = mix(fragColor.rgb, colors[2], step(.2, grey));
+          // fragColor.rgb = mix(fragColor.rgb, colors[0], step(.3, grey));
+          // fragColor.rgb = mix(fragColor.rgb, colors[1], step(.3, grey));
+          // fragColor.rgb = mix(fragColor.rgb, colors[2], step(.4, grey));
+          // fragColor.rgb = mix(fragColor.rgb, colors[0], step(.5, grey));
+          // fragColor.rgb = mix(fragColor.rgb, colors[1], step(.6, grey));
+          // fragColor.rgb = mix(fragColor.rgb, colors[2], step(.7, grey));
+          // fragColor.rgb = mix(fragColor.rgb, colors[0], step(.8, grey));
+          // fragColor.rgb = mix(fragColor.rgb, colors[1], step(.9, grey));
+          // fragColor.rgb += .5 * motion;
         }
       `
     });

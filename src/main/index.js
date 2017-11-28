@@ -15,6 +15,11 @@ Loader.onLoad.then(() => {
     connectedCallback() {
       let templateClone = document.importNode(template.content, true);
       this.appendChild(templateClone);
+
+      const webgl = document.querySelector("christmasxp-yolohero-webgl");
+      const player = document.querySelector("christmasxp-yolohero-player");
+
+      webgl.player = player;
     }
   });
 });

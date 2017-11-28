@@ -6,16 +6,19 @@ import Camera from "dlib/3d/Camera.js";
 import TrackballController from "dlib/3d/controllers/TrackballController.js";
 import Background from "./Background.js";
 import Loader from "dlib/utils/Loader.js";
+import Texts from "./Texts.js";
 
 Loader.load("src/Shrikhand-Regular.ttf");
 
 export default class View {
   constructor({
     gl,
-    webcam
+    webcam,
+    player
   } = {}) {
     this.gl = gl;
     this.webcam = webcam;
+    this.player = player;
 
     this.camera = new Camera();
 
@@ -29,14 +32,9 @@ export default class View {
       webcam: this.webcam
     });
 
-    this.text = new GLText({
+    this.texts = new Texts({
       gl: this.gl,
-      scale: .5,
-      textAlign: "center",
-      textContent: "Move",
-      fillStyle: "white",
-      font: "100px Shrikhand-Regular",
-      paddingX: 4
+      player
     });
   }
 
@@ -55,11 +53,8 @@ export default class View {
     
     this.background.draw();
 
-    this.gl.enable(this.gl.BLEND);
-    this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
-    this.text.draw({
+    this.texts.draw({
       camera: this.camera
     });
-    this.gl.disable(this.gl.BLEND);
   }
 }

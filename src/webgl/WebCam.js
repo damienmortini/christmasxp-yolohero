@@ -8,7 +8,7 @@ import Ticker from "dlib/utils/Ticker.js";
 const FRAME_BUFFER_SIZE = 256;
 const BLUR_PASSES = 4;
 
-export default class Camera {
+export default class WebCam {
   constructor({gl}) {
     this.gl = gl;
 

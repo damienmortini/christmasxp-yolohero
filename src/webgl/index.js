@@ -3,7 +3,7 @@ import "@webcomponents/custom-elements";
 import LoopElement from "dlib/customelements/LoopElement.js";
 import Loader from "dlib/utils/Loader.js";
 
-import Camera from "./Camera.js";
+import WebCam from "./WebCam.js";
 import View from "./View.js";
 
 let template = document.createElement("template");
@@ -27,15 +27,19 @@ Loader.onLoad.then(() => {
         antialias: true
       });
 
-      this.camera = new Camera({gl: this.gl});
-      this.view = new View({
-        gl: this.gl,
-        webcam: this.camera
-      });
+      this.webcam = new WebCam({gl: this.gl});
 
       window.addEventListener("resize", this._resizeBinded = this.resize.bind(this));
+    }
 
-      this.resize();
+    set player(value) {
+      this.view = new View({
+        gl: this.gl,
+        webcam: this.webcam,
+        player: value
+      });
+
+      this.resize();      
     }
 
     disconnectedCallback() {
@@ -53,7 +57,11 @@ Loader.onLoad.then(() => {
     }
 
     update() {
-      this.camera.update();
+      if(!this.view) {
+        return;
+      }
+
+      this.webcam.update();
       this.view.update();
     }
   });
