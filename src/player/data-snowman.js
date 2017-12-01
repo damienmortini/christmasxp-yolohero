@@ -1,0 +1,73 @@
+let MAIN = [];
+
+export default {
+  slices: new Map([
+    ["main", {
+      startTime: .25,
+      bpm: 150,
+      data: MAIN,
+      timings: []
+    }]
+  ])
+};
+
+MAIN.push(
+  ["", "Follow my instructions"],
+  [""],
+  [""],
+  [""],
+  ["", ["Press space when the text is in the middle", .5]],
+  [""],
+  [""],
+  ["Press space"],
+  [""],
+  ["Press space"],
+  [""],
+  ["Press space"],
+  [""],
+  ["Press space", "Cool 😃"],
+  [""],
+  [""],
+  ["", "Prepare to move!"],
+  [""],
+  [""],
+  [""],
+  ["", "Move"],
+  ["Move"],
+  ["Move"],
+  ["Move"],
+  ["Move"],
+  ["", "Nice!"],
+  [""],
+  ["", "Let's make some noise!"],
+  [""],
+  ["", ["3", 2]],
+  ["", ["2", 2]],
+  ["", ["1", 2]],
+  ["Shout", ["YOY!!!", 4]],
+  [""],
+  [""],
+  [""],
+  [""],
+  [""],
+  [""],
+  [""],
+  [""],
+  [""],
+  ["Move"],
+  ["Move"],
+  ["Move"],
+  ["Move"],
+  ["Move"],
+  ["Move"],
+  ["Move"],
+  ["Move"],
+  ["Move"],
+  ["Move"],
+  ["Move"],
+  ["Move"],
+  ["Move"],
+  ["Move"],
+  ["Move"],
+  ["Move"]
+);

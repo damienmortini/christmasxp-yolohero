@@ -188,7 +188,6 @@ export default class WebCam {
       return;
     }
 
-    this._mesh.bind();
     this.program.attributes.set(this._mesh.attributes);    
 
     this.gl.disable(this.gl.CULL_FACE);  
@@ -196,9 +195,10 @@ export default class WebCam {
 
     this.frameBuffers[0].bind();
     this.videoTexture.data = this.video;
+    this.videoTexture.bind();
     this.program.use();
     this.program.uniforms.set("videoTexture", 0);
-    this.draw({
+    this._draw({
       width: FRAME_BUFFER_SIZE,
       height: FRAME_BUFFER_SIZE
     });
@@ -210,7 +210,7 @@ export default class WebCam {
         this.blurProgram.use();
         this.frameBuffers[i].colorTextures[0].bind();
         this.blurProgram.uniforms.set("blurDistance", [(i + 1) % 2, i]);
-        this.draw({
+        this._draw({
           width: FRAME_BUFFER_SIZE,
           height: FRAME_BUFFER_SIZE
         });
@@ -226,7 +226,7 @@ export default class WebCam {
       unit: 1
     });
     this.endProgram.uniforms.set("previousFrame", 1);
-    this.draw({
+    this._draw({
       width: 1,
       height: 1
     });
@@ -234,7 +234,7 @@ export default class WebCam {
     let motionRatio = 0;
 
     const pixels = new Uint8Array(1);
-    this.gl.readPixels(0, 0, 1, 1, this.gl.RED, this.gl.UNSIGNED_BYTE, pixels);
+    // this.gl.readPixels(0, 0, 1, 1, this.gl.RED, this.gl.UNSIGNED_BYTE, pixels);
     motionRatio = pixels[0] / 255 * 100;
 
     motionRatio = motionRatio || (this.motionRatio * .8);
@@ -245,7 +245,7 @@ export default class WebCam {
     // this.debugProgram.use();
     // this.frameBuffers[2].colorTextures[0].bind();
     // this.debugProgram.uniforms.set("frame", 0);
-    // this.draw();
+    // this._draw();
 
     [this.frameBuffers[1], this.frameBuffers[2]] = [this.frameBuffers[2], this.frameBuffers[1]];
   }
@@ -254,7 +254,7 @@ export default class WebCam {
     return this.frameBuffers[2].colorTextures[0];
   }
 
-  draw({
+  _draw({
     width = this.gl.canvas.width,
     height = this.gl.canvas.height,
   } = {}) {

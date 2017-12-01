@@ -1,4 +1,24 @@
-export const INTRO = [
+let INTRO = [];
+let RAP = [];
+
+export default {
+  slices: new Map([
+    ["intro", {
+      startTime: 30,
+      bpm: 128,
+      data: INTRO,
+      timings: []
+    }],
+    ["rap", {
+      startTime: 45.4,
+      bpm: 128,
+      data: RAP,
+      timings: []
+    }]
+  ])
+};
+
+INTRO.push(
   ["", "Follow my instructions"],
   [""],
   [""],
@@ -32,9 +52,9 @@ export const INTRO = [
   ["", ["2", 2]],
   ["", ["1", 2]],
   ["Shout", ["YOY!!!", 4]],
-];
+);
 
-export const RAP = [
+RAP.push(
   [""],
   [""],
   [""],
@@ -60,4 +80,4 @@ export const RAP = [
   ["Move"],
   ["Move"],
   ["Move"]
-];
+);

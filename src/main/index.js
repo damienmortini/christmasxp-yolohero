@@ -6,14 +6,19 @@ import "../webgl/index.js";
 import "../player/index.js";
 import "../ui/index.js";
 
+import ActionsDetector from "../ActionsDetector.js";
+import LoopElement from "dlib/customelements/LoopElement.js";
+
 let template = document.createElement("template");
 Loader.load("src/main/template.html").then((value) => {
   template.innerHTML = value;
 });
 
 Loader.onLoad.then(() => {
-  window.customElements.define("christmasxp-yolohero-main", class extends HTMLElement {
+  window.customElements.define("christmasxp-yolohero-main", class extends LoopElement {
     connectedCallback() {
+      super.connectedCallback();
+      
       let templateClone = document.importNode(template.content, true);
       this.appendChild(templateClone);
 
@@ -21,7 +26,11 @@ Loader.onLoad.then(() => {
       const webgl = document.querySelector("christmasxp-yolohero-webgl");
       const ui = document.querySelector("christmasxp-yolohero-ui");
 
-      webgl.player = player;
+      if(player) {
+        webgl.player = player;
+        this._actionsDetector = new ActionsDetector(player);
+      }
+
     }
   });
 });
