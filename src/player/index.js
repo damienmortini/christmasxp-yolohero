@@ -44,7 +44,7 @@ Loader.onLoad.then(() => {
       this._currentSlice = null;
 
       if(this.querySelector("#soundcloud-player")) {
-        SoundCloudAPI.ready.then(() => {
+        SoundCloudAPI.load().then(() => {
           this._player = {
             currentTime: 0
           };
@@ -59,7 +59,7 @@ Loader.onLoad.then(() => {
       }
 
       if(this.querySelector("#youtube-player")) {
-        YouTubeAPI.ready.then(() => {
+        YouTubeAPI.load().then(() => {
           const youtubePlayer = new YT.Player("youtube-player", {
             height: "390",
             width: "640",
