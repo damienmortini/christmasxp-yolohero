@@ -16,6 +16,7 @@ export default class WebCam {
     this.video.autoplay = true;
 
     this.motionRatio = 0;
+    this.volume = 0;
 
     this._mesh = new GLMesh({
       gl: this.gl,
@@ -176,8 +177,15 @@ export default class WebCam {
     });
     this.debugProgram.attributes.set(this._mesh.attributes);
 
-    navigator.mediaDevices.getUserMedia({ audio: false, video: { width: window.innerWidth * .2, height: window.innerHeight * .2, facingMode: "user" } }).then((stream) => {
+    navigator.mediaDevices.getUserMedia({ audio: true, video: { width: window.innerWidth * .2, height: window.innerHeight * .2, facingMode: "user" } }).then((stream) => {
       this.video.srcObject = stream;
+      this.video.muted = true;
+
+      const audioContext = new AudioContext();
+      const input = audioContext.createMediaStreamSource(stream);
+      this._analyser = audioContext.createAnalyser();
+      this._audioData = new Uint8Array(this._analyser.frequencyBinCount);
+      input.connect(this._analyser);
     }).catch(function (err) {
       /* handle the error */
     });
@@ -248,6 +256,15 @@ export default class WebCam {
     // this._draw();
 
     [this.frameBuffers[1], this.frameBuffers[2]] = [this.frameBuffers[2], this.frameBuffers[1]];
+
+    // Sound
+    let frequenciesSum = 0;
+    this._analyser.getByteFrequencyData(this._audioData);
+    for (var i = 0; i < this._audioData.length; i++) {
+      frequenciesSum += this._audioData[i];
+    }
+    frequenciesSum /= this._audioData.length;
+    this.volume = frequenciesSum / 255;
   }
 
   get frameTexture() {

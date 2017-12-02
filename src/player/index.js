@@ -35,12 +35,11 @@ Loader.onLoad.then(() => {
     connectedCallback() {
       super.connectedCallback();
 
-      
       let templateClone = document.importNode(template.content, true);
       this.appendChild(templateClone);
       
       this.onActionChange = new Signal();
-
+      
       this.bpm = 0;
       this.currentTime = 0;
       this.action = {

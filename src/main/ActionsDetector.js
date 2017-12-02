@@ -69,6 +69,11 @@ export default class ActionsDetector {
         }
       }
 
+      if(action.type === "sound" && this._webcam.volume > .5) {
+        action.success = true;
+        this.onActionComplete.dispatch({action});
+      }
+
       if(action.type === "motion" && this._webcam.motionRatio > 1) {
         action.success = true;
         this.onActionComplete.dispatch({action});
