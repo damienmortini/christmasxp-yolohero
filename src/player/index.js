@@ -24,7 +24,8 @@ for (let slice of DATA.slices.values()) {
     ACTIONS.push({
       time: slice.startTime + i * 60 / slice.bpm - START_TIME,
       text: data[0],
-      additionalText: data[1]
+      additionalText: data[1],
+      success: false
     });
   }
 }

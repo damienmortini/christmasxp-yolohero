@@ -87,24 +87,15 @@ export default class ActionTexts {
       array.push(text);
     }
 
-    this.actionsDetector.onActionSuccess.add(this.onActionSuccess.bind(this));
-    this.actionsDetector.onActionFail.add(this.onActionFail.bind(this));
+    this.actionsDetector.onActionComplete.add(this.onActionComplete.bind(this));
   }
 
-  onActionSuccess({action}) {
+  onActionComplete({action}) {
     const text = this._texts.get(action);
     if(!text) {
       return;
     }
-    text.color = hexToRGB("#00ff00");
-  }
-
-  onActionFail({action}) {
-    const text = this._texts.get(action);
-    if(!text) {
-      return;
-    }
-    text.color = hexToRGB("#ff0000");
+    text.color = hexToRGB(action.success ? "#00ff00" : "#ff0000");
   }
 
   resize({width, height}) {

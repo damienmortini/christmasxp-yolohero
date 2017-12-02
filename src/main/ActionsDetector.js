@@ -14,8 +14,7 @@ export default class ActionsDetector {
     ]);
     this._nextAction = this._player.actions[1];
 
-    this.onActionSuccess = new Signal();
-    this.onActionFail = new Signal();
+    this.onActionComplete = new Signal();
 
     this._player.onActionChange.add(this.onActionChange.bind(this));
 
@@ -28,14 +27,15 @@ export default class ActionsDetector {
         continue;
       }
 
-      let key = action.text.split(" ")[1];
+      let key = action.text.split(" ")[1].toLowerCase();
       if(key === "space") {
         key = " ";
       }
 
       if(key === e.key) {
+        action.success = true;
         this._currentActions.delete(action);
-        this.onActionSuccess.dispatch({action});
+        this.onActionComplete.dispatch({action});
       }
     }
   }
@@ -53,11 +53,14 @@ export default class ActionsDetector {
     for (let action of this._currentActions) {
       if(this._player.currentTime - action.time > 60 * .5 / this._player.bpm) {
         this._currentActions.delete(action);
-        this.onActionFail.dispatch({action});
+        if(!action.success) {
+          this.onActionComplete.dispatch({action});
+        }
       }
 
       if(action.text === "Move" && this._webcam.motionRatio > 1) {
-        this.onActionSuccess.dispatch({action});
+        action.success = true;
+        this.onActionComplete.dispatch({action});
       }
     }
   }
