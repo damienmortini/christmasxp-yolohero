@@ -17,7 +17,8 @@ export default class MainText extends GLText {
       fillStyle: "white",
       font: "240px Shrikhand-Regular",
       paddingPercentageWidth: .2,
-      paddingPercentageHeight: .3
+      paddingPercentageHeight: .2,
+      offsetYPercentage: .2
     });
 
     this._scale = 1;

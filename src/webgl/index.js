@@ -48,6 +48,10 @@ Loader.onLoad.then(() => {
       this.resize();
     }
 
+    set score(value) {
+      this.view.score = value;
+    }
+
     disconnectedCallback() {
       window.removeEventListener("resize", this._resizeBinded);
     }

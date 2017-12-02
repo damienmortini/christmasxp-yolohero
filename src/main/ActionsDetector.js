@@ -72,6 +72,7 @@ export default class ActionsDetector {
       if(action.type === "sound" && this._webcam.volume > .5) {
         action.success = true;
         this.onActionComplete.dispatch({action});
+        this._currentActions.delete(action);
       }
 
       if(action.type === "motion" && this._webcam.motionRatio > 1) {

@@ -12,11 +12,12 @@ export default class ScoreText extends GLText {
       gl,
       textScale: .25,
       textAlign: "center",
-      textContent: "test",
+      textContent: "0",
       fillStyle: "white",
       font: "240px Shrikhand-Regular",
       paddingPercentageWidth: .2,
-      paddingPercentageHeight: .2
+      paddingPercentageHeight: .2,
+      offsetYPercentage: .25
     });
 
     this._scale = 1;
@@ -27,7 +28,7 @@ export default class ScoreText extends GLText {
           precision highp float;
         `],
         ["end", `
-          fragColor += .5;
+          // fragColor += .5;
         `]
       ]
     })

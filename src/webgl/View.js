@@ -56,6 +56,7 @@ export default class View {
     this.scoreText = new ScoreText({
       gl: this.gl
     });
+    this.scoreText.transform.setPosition([5, -5, 0]);
   }
 
   resize({width, height}) {
@@ -63,6 +64,10 @@ export default class View {
     this.actionTexts.resize({width, height});
     this.ui.resize({width, height});
     this.update();
+  }
+
+  set score(value) {
+    this.scoreText.textContent = value;
   }
  
   update() {

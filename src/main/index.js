@@ -22,19 +22,45 @@ Loader.onLoad.then(() => {
       let templateClone = document.importNode(template.content, true);
       this.appendChild(templateClone);
 
+      this.score = 0;
+
       const player = document.querySelector("christmasxp-yolohero-player");
-      const webgl = document.querySelector("christmasxp-yolohero-webgl");
+      this.webgl = document.querySelector("christmasxp-yolohero-webgl");
       const ui = document.querySelector("christmasxp-yolohero-ui");
 
       this._actionsDetector = new ActionsDetector({
         player,
-        webcam: webgl.webcam
+        webcam: this.webgl.webcam
       });
       
-      webgl.init({
+      this.webgl.init({
         player,
         actionsDetector: this._actionsDetector
       });
+
+      this._actionsDetector.onActionComplete.add(this.onActionComplete.bind(this));
+    }
+
+    onActionComplete({action}) {
+      if(!action.success) {
+        return;
+      }
+
+      switch (action.type) {
+        case "motion":
+          this.score += 1;
+          break;
+        case "mouse":
+          this.score += 1;
+          break;
+        case "sound":
+          this.score += 50;
+          break;
+        default:
+          this.score += 10;  
+      }
+
+      this.webgl.score = this.score;
     }
 
     update() {
