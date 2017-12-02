@@ -2,16 +2,19 @@ import GLText from "dlib/gl/GLText.js";
 import GLTexture from "dlib/gl/GLTexture.js";
 import Matrix4 from "dlib/math/Matrix4.js";
 import Vector4 from "dlib/math/Vector4.js";
+import { hexToRGB } from "dlib/math/Color.js";
 
 let DEFAULT_TEXT;
 
 export default class ActionTexts {
   constructor({
     gl,
-    player
+    player,
+    actionsDetector
   }) {
     this.gl = gl;
     this.player = player;
+    this.actionsDetector = actionsDetector;
 
     if(!DEFAULT_TEXT) {
       DEFAULT_TEXT = new GLText({
@@ -30,8 +33,10 @@ export default class ActionTexts {
             precision highp float;
 
             uniform float opacity;
+            uniform vec3 color;
           `],
           ["end", `
+            fragColor.rgb *= color;
             fragColor.a *= opacity;
           `]
         ]
@@ -43,16 +48,16 @@ export default class ActionTexts {
     const textContents = new Set();
     
     for (let action of this.player.actions) {
-      const textContent = action[1];
-      if(!textContent) {
+      if(!action.text) {
         continue;
       }
       this._texts.set(action, {
-        textContent,
+        textContent: action.text,
         transform: new Matrix4(),
-        opacity: 0
+        opacity: 0,
+        color: [1, 0, 1]
       });
-      textContents.add(textContent);
+      textContents.add(action.text);
     }
 
     this._texturesData = new Map();
@@ -81,6 +86,25 @@ export default class ActionTexts {
       }
       array.push(text);
     }
+
+    this.actionsDetector.onActionSuccess.add(this.onActionSuccess.bind(this));
+    this.actionsDetector.onActionFail.add(this.onActionFail.bind(this));
+  }
+
+  onActionSuccess({action}) {
+    const text = this._texts.get(action);
+    if(!text) {
+      return;
+    }
+    text.color = hexToRGB("#00ff00");
+  }
+
+  onActionFail({action}) {
+    const text = this._texts.get(action);
+    if(!text) {
+      return;
+    }
+    text.color = hexToRGB("#ff0000");
   }
 
   resize({width, height}) {
@@ -94,7 +118,7 @@ export default class ActionTexts {
         continue;
       }
       text.transform.identity();
-      text.transform.y = (this.player.currentTime - action[0]) * 5;
+      text.transform.y = (this.player.currentTime - action.time) * 5;
       text.transform.scale(1 + Math.max(0, 1. - Math.abs(text.transform.y) * 3));
       text.opacity = Math.max(0, 1. - Math.abs(text.transform.y) * .1);
     }
@@ -111,15 +135,16 @@ export default class ActionTexts {
       DEFAULT_TEXT.program.uniforms.set("scaleOffset", textureData.scaleOffset);
 
       for (let text of textsArray) {
-        // for (let i = 0; i < 2; i++) {
-          // text.transform.x = (i * 2 - 1) * this._width * .005;
-          DEFAULT_TEXT.program.uniforms.set("opacity", text.opacity);
-          DEFAULT_TEXT.program.uniforms.set("transform", text.transform);
-          DEFAULT_TEXT.mesh.draw({
-            mode: this.gl.TRIANGLE_STRIP,
-            count: 4
-          });
-        // }
+        if(!text.opacity) {
+          continue;
+        }
+        DEFAULT_TEXT.program.uniforms.set("color", text.color);
+        DEFAULT_TEXT.program.uniforms.set("opacity", text.opacity);
+        DEFAULT_TEXT.program.uniforms.set("transform", text.transform);
+        DEFAULT_TEXT.mesh.draw({
+          mode: this.gl.TRIANGLE_STRIP,
+          count: 4
+        });
       }
     }
     this.gl.disable(this.gl.BLEND);

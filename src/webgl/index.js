@@ -19,6 +19,8 @@ Loader.onLoad.then(() => {
       let templateClone = document.importNode(template.content, true);
       this.appendChild(templateClone);
 
+      this._actionsDetector = false;
+
       this.canvas = this.querySelector("canvas");
 
       this.gl = this.canvas.getContext(WebGL2RenderingContext ? "webgl2" : "webgl", {
@@ -32,14 +34,18 @@ Loader.onLoad.then(() => {
       window.addEventListener("resize", this._resizeBinded = this.resize.bind(this));
     }
 
-    set player(value) {
+    init({
+      player,
+      actionsDetector
+    }) {
       this.view = new View({
         gl: this.gl,
         webcam: this.webcam,
-        player: value
+        player,
+        actionsDetector
       });
 
-      this.resize();      
+      this.resize();
     }
 
     disconnectedCallback() {

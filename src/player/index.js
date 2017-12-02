@@ -21,7 +21,11 @@ const START_TIME = [...DATA.slices.values()][0].startTime;
 const ACTIONS = [];
 for (let slice of DATA.slices.values()) {
   for (let [i, data] of slice.data.entries()) {
-    ACTIONS.push([slice.startTime + i * 60 / slice.bpm - START_TIME, ...data])
+    ACTIONS.push({
+      time: slice.startTime + i * 60 / slice.bpm - START_TIME,
+      text: data[0],
+      additionalText: data[1]
+    });
   }
 }
 
@@ -29,15 +33,18 @@ Loader.onLoad.then(() => {
   window.customElements.define("christmasxp-yolohero-player", class extends LoopElement {
     connectedCallback() {
       super.connectedCallback();
+
       
       let templateClone = document.importNode(template.content, true);
       this.appendChild(templateClone);
-
+      
       this.onActionChange = new Signal();
 
       this.bpm = 0;
       this.currentTime = 0;
-      this.action = [-1];
+      this.action = {
+        time: -1
+      };
 
       this._previousBeatTime = 0;
       this._currentSliceStartTime = 0;
@@ -50,6 +57,7 @@ Loader.onLoad.then(() => {
           };
           const widget = SC.Widget(this.querySelector("iframe"));
           widget.bind(SC.Widget.Events.READY, () => {
+            widget.setVolume(MUTE ? 0 : 1);
             widget.play();
           });
           widget.bind(SC.Widget.Events.PLAY_PROGRESS, (e) => {
@@ -64,6 +72,8 @@ Loader.onLoad.then(() => {
             height: "390",
             width: "640",
             videoId: "B-NckB3CQ9o",
+            // videoId: "I-s4kSMjmhY",
+            // videoId: "BFNZxrBFnpg",
             playerVars: {
               autoplay: 1,
               // controls: 0,
@@ -89,11 +99,11 @@ Loader.onLoad.then(() => {
         });
       }
 
-      this._previousKeyboardBeatTime = 0;
-      Keyboard.addEventListener("keydown", () => {
-        console.log(60 / (this._player.currentTime - this._previousKeyboardBeatTime));
-        this._previousKeyboardBeatTime = this._player.currentTime;
-      });
+      // this._previousKeyboardBeatTime = 0;
+      // Keyboard.addEventListener("keydown", () => {
+      //   console.log(60 / (this._player.currentTime - this._previousKeyboardBeatTime));
+      //   this._previousKeyboardBeatTime = this._player.currentTime;
+      // });
     }
 
     get actions() {
@@ -118,10 +128,14 @@ Loader.onLoad.then(() => {
 
       this.currentTime = currentTime - START_TIME;
 
-      for (let action of this.actions) {
-        if(action[0] > this.action[0] && action[0] < this.currentTime && this.action !== action) {
+      for (let i = 0; i < this.actions.length; i++) {
+        const action = this.actions[i];
+        if(action.time > this.action.time && action.time < this.currentTime && this.action !== action) {
           this.action = action;
-          this.onActionChange.dispatch(this.action);
+          this.onActionChange.dispatch({
+            action: this.action,
+            nextAction: this.actions[i + 1]
+          });
         }
       }
       

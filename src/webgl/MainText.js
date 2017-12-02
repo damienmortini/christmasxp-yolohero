@@ -41,8 +41,8 @@ export default class MainText extends GLText {
     this.player.onActionChange.add(this.changeAction.bind(this));
   }
 
-  changeAction(action) {
-    let data = action[2];
+  changeAction({action}) {
+    let data = action.additionalText;
     if(!data) {
       return;
     }

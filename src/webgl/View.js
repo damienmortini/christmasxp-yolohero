@@ -16,6 +16,7 @@ export default class View {
   constructor({
     gl,
     webcam,
+    actionsDetector,
     player
   } = {}) {
     this.gl = gl;
@@ -36,7 +37,8 @@ export default class View {
 
     this.actionTexts = new ActionTexts({
       gl: this.gl,
-      player
+      player,
+      actionsDetector
     });
     
     this.mainText = new MainText({
