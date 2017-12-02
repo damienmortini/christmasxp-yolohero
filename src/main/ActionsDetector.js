@@ -1,5 +1,6 @@
 import Signal from "dlib/utils/Signal.js";
 import Keyboard from "dlib/input/Keyboard.js";
+import Pointer from "dlib/input/Pointer.js";
 
 export default class ActionsDetector {
   constructor({
@@ -8,6 +9,7 @@ export default class ActionsDetector {
   } = {}) {
     this._player = player;
     this._webcam = webcam;
+    this._pointer = Pointer.get();
 
     this._currentActions = new Set([
       this._player.actions[0],
@@ -19,15 +21,24 @@ export default class ActionsDetector {
     this._player.onActionChange.add(this.onActionChange.bind(this));
 
     Keyboard.addEventListener("keydown", this.onKeyDown.bind(this));
+    this._pointer.onDown.add(this.onPointerDown.bind(this));
+  }
+
+  onPointerDown() {
+    for (let action of this._currentActions) {
+      if(action.type !== "click") {
+        continue;
+      }
+
+      action.success = true;
+      this._currentActions.delete(action);
+      this.onActionComplete.dispatch({action});
+    }
   }
 
   onKeyDown(e) {
     for (let action of this._currentActions) {
-      if(!action || !action.text || !action.text.startsWith("Press")) {
-        continue;
-      }
-
-      let key = action.text.split(" ")[1].toLowerCase();
+      let key = action.type;
       if(key === "space") {
         key = " ";
       }
@@ -58,7 +69,12 @@ export default class ActionsDetector {
         }
       }
 
-      if(action.text === "Move" && this._webcam.motionRatio > 1) {
+      if(action.type === "motion" && this._webcam.motionRatio > 1) {
+        action.success = true;
+        this.onActionComplete.dispatch({action});
+      }
+
+      if(action.type === "mouse" && this._pointer.velocity.x && this._pointer.velocity.y) {
         action.success = true;
         this.onActionComplete.dispatch({action});
       }

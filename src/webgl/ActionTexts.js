@@ -6,6 +6,14 @@ import { hexToRGB } from "dlib/math/Color.js";
 
 let DEFAULT_TEXT;
 
+const TEXTS = new Map([
+  ["motion", "Move your body"],
+  ["click", "Click!"],
+  ["mouse", "Move your mouse"],
+  ["sound", "Shout!"],
+  ["keyboard", "Press "]
+]);
+
 export default class ActionTexts {
   constructor({
     gl,
@@ -48,16 +56,20 @@ export default class ActionTexts {
     const textContents = new Set();
     
     for (let action of this.player.actions) {
-      if(!action.text) {
+      if(!action.type) {
         continue;
       }
+      let text = TEXTS.get(action.type);
+      if(!text) {
+        text = TEXTS.get("keyboard") + action.type.toUpperCase();
+      }
       this._texts.set(action, {
-        textContent: action.text,
+        textContent: text,
         transform: new Matrix4(),
         opacity: 0,
         color: [1, 0, 1]
       });
-      textContents.add(action.text);
+      textContents.add(text);
     }
 
     this._texturesData = new Map();
