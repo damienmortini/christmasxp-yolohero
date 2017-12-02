@@ -1,11 +1,14 @@
 import Signal from "dlib/utils/Signal.js";
 import Keyboard from "dlib/input/Keyboard.js";
 
-const ACTION_TIME_ALLOWANCE = .1;
-
 export default class ActionsDetector {
-  constructor({player} = {}) {
+  constructor({
+    player,
+    webcam
+  } = {}) {
     this._player = player;
+    this._webcam = webcam;
+
     this._currentActions = new Set([
       this._player.actions[0],
     ]);
@@ -21,15 +24,11 @@ export default class ActionsDetector {
 
   onKeyDown(e) {
     for (let action of this._currentActions) {
-      if(!action) {
-        continue;
-      }
-      const actionString = action.text.toLowerCase();
-      if(!actionString || !actionString.startsWith("press")) {
+      if(!action || !action.text || !action.text.startsWith("Press")) {
         continue;
       }
 
-      let key = actionString.split(" ")[1];
+      let key = action.text.split(" ")[1];
       if(key === "space") {
         key = " ";
       }
@@ -46,15 +45,19 @@ export default class ActionsDetector {
   }
   
   update() {
-    if(this._nextAction && this._nextAction.time - this._player.currentTime < ACTION_TIME_ALLOWANCE) {
+    if(this._nextAction && this._nextAction.time - this._player.currentTime < 60 * .5 / this._player.bpm) {
       this._currentActions.add(this._nextAction);
       this._nextAction = null;
     }
 
     for (let action of this._currentActions) {
-      if(this._player.currentTime - action.time > ACTION_TIME_ALLOWANCE) {
+      if(this._player.currentTime - action.time > 60 * .5 / this._player.bpm) {
         this._currentActions.delete(action);
         this.onActionFail.dispatch({action});
+      }
+
+      if(action.text === "Move" && this._webcam.motionRatio > 1) {
+        this.onActionSuccess.dispatch({action});
       }
     }
   }

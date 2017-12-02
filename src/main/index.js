@@ -26,7 +26,11 @@ Loader.onLoad.then(() => {
       const webgl = document.querySelector("christmasxp-yolohero-webgl");
       const ui = document.querySelector("christmasxp-yolohero-ui");
 
-      this._actionsDetector = new ActionsDetector({player});
+      this._actionsDetector = new ActionsDetector({
+        player,
+        webcam: webgl.webcam
+      });
+      
       webgl.init({
         player,
         actionsDetector: this._actionsDetector

@@ -234,7 +234,7 @@ export default class WebCam {
     let motionRatio = 0;
 
     const pixels = new Uint8Array(1);
-    // this.gl.readPixels(0, 0, 1, 1, this.gl.RED, this.gl.UNSIGNED_BYTE, pixels);
+    this.gl.readPixels(0, 0, 1, 1, this.gl.RED, this.gl.UNSIGNED_BYTE, pixels);
     motionRatio = pixels[0] / 255 * 100;
 
     motionRatio = motionRatio || (this.motionRatio * .8);
