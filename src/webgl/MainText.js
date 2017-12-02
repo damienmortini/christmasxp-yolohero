@@ -42,7 +42,7 @@ export default class MainText extends GLText {
   }
 
   changeAction({action}) {
-    let data = action.additionalText;
+    let data = action.text;
     if(!data) {
       return;
     }
@@ -71,12 +71,12 @@ export default class MainText extends GLText {
   draw({camera} = {}) {
     this.gl.enable(this.gl.BLEND);
     this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
-    this.transform.identity();
-    this.transform.y = 3;
-    this.transform.scale(this._scale);
+    const scale = this._scale || .0001;
+    this.transform.scale(scale);
     this.program.use();
     this.program.uniforms.set("opacity", this._opacity);
     super.draw({camera});
     this.gl.disable(this.gl.BLEND);
+    this.transform.scale(1 / scale);
   }
 }

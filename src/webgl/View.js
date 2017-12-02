@@ -9,6 +9,7 @@ import Loader from "dlib/utils/Loader.js";
 import ActionTexts from "./ActionTexts.js";
 import MainText from "./MainText.js";
 import UI from "./ui/UI.js";
+import ScoreText from "./ScoreText.js";
 
 Loader.load("src/Shrikhand-Regular.ttf");
 
@@ -45,10 +46,15 @@ export default class View {
       gl: this.gl,
       player
     });
+    this.mainText.transform.y = 3;
 
     this.ui = new UI({
       gl: this.gl,
       player
+    });
+
+    this.scoreText = new ScoreText({
+      gl: this.gl
     });
   }
 
@@ -78,6 +84,10 @@ export default class View {
     });
 
     this.mainText.draw({
+      camera: this.camera
+    });
+
+    this.scoreText.draw({
       camera: this.camera
     });
   }

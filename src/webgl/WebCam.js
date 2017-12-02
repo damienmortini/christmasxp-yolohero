@@ -6,7 +6,7 @@ import GLMesh from "dlib/gl/GLMesh.js";
 import Ticker from "dlib/utils/Ticker.js";
 
 const FRAME_BUFFER_SIZE = 256;
-const BLUR_PASSES = 4;
+const BLUR_PASSES = 2;
 
 export default class WebCam {
   constructor({gl}) {
@@ -59,11 +59,10 @@ export default class WebCam {
           format: i === 3 ? this.gl.RED : this.gl.RGB,
           width: i === 3 ? 1 : FRAME_BUFFER_SIZE,
           height: i === 3 ? 1 : FRAME_BUFFER_SIZE,
-          wrapS: this.gl.CLAMP_TO_EDGE,
-          wrapT: this.gl.CLAMP_TO_EDGE,
+          wrapS: this.gl.MIRRORED_REPEAT,
+          wrapT: this.gl.MIRRORED_REPEAT,
         })
       });
-      frameBuffer.unbind();
       this.frameBuffers.push(frameBuffer);
     }
 
