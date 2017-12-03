@@ -84,7 +84,7 @@ export default class Ground {
           float displacementRatio = volume * pow(1. - abs(vUv.y * 2. - 1.), 1.);
           displaced += cos(vUv.y * 40. + time * 10. + vUv.x * 3.14) * displacementRatio * .5;
           opacity = 1. - step(.01, fract(clamp(displaced, .05, .95) * 5. + .025));
-          opacity += (1. - step(.0005, vUv.y)) * (1. - pow(abs(vUv.x * 2. - 1.), 10.));
+          // opacity += (1. - step(.0005, vUv.y)) * (1. - pow(abs(vUv.x * 2. - 1.), 10.));
           opacity *= 1. - vUv.y;
           fragColor = vec4(color, opacity);
         }

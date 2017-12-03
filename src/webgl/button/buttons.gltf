@@ -231,6 +231,140 @@
                 0.0
             ], 
             "type" : "VEC2"
+        }, 
+        {
+            "bufferView" : 16, 
+            "componentType" : 5123, 
+            "count" : 756, 
+            "max" : [
+                271
+            ], 
+            "min" : [
+                0
+            ], 
+            "type" : "SCALAR"
+        }, 
+        {
+            "bufferView" : 17, 
+            "componentType" : 5126, 
+            "count" : 272, 
+            "max" : [
+                1.0, 
+                0.40000006556510925, 
+                1.0000001192092896
+            ], 
+            "min" : [
+                -0.9999999403953552, 
+                -1.4156103134155273e-07, 
+                -1.0
+            ], 
+            "type" : "VEC3"
+        }, 
+        {
+            "bufferView" : 18, 
+            "componentType" : 5126, 
+            "count" : 272, 
+            "max" : [
+                0.7278664708137512, 
+                0.729819655418396, 
+                0.7278664708137512
+            ], 
+            "min" : [
+                -0.7278664708137512, 
+                -0.6856898665428162, 
+                -0.7278664708137512
+            ], 
+            "type" : "VEC3"
+        }, 
+        {
+            "bufferView" : 19, 
+            "componentType" : 5126, 
+            "count" : 272, 
+            "max" : [
+                1.0, 
+                1.0
+            ], 
+            "min" : [
+                0.0, 
+                5.960464477539063e-08
+            ], 
+            "type" : "VEC2"
+        }, 
+        {
+            "bufferView" : 20, 
+            "componentType" : 5121, 
+            "count" : 768, 
+            "max" : [
+                127
+            ], 
+            "min" : [
+                0
+            ], 
+            "type" : "SCALAR"
+        }, 
+        {
+            "bufferView" : 21, 
+            "componentType" : 5126, 
+            "count" : 128, 
+            "max" : [
+                1.2600001096725464, 
+                0.21000002324581146, 
+                1.260000228881836
+            ], 
+            "min" : [
+                -1.2599999904632568, 
+                -0.21000003814697266, 
+                -1.2600001096725464
+            ], 
+            "type" : "VEC3"
+        }, 
+        {
+            "bufferView" : 22, 
+            "componentType" : 5126, 
+            "count" : 128, 
+            "max" : [
+                0.7278664708137512, 
+                0.729819655418396, 
+                0.7278664708137512
+            ], 
+            "min" : [
+                -0.7278664708137512, 
+                -0.729819655418396, 
+                -0.7278664708137512
+            ], 
+            "type" : "VEC3"
+        }, 
+        {
+            "bufferView" : 23, 
+            "componentType" : 5126, 
+            "count" : 128, 
+            "max" : [
+                1.0, 
+                0.0, 
+                -0.0, 
+                1.0
+            ], 
+            "min" : [
+                1.0, 
+                0.0, 
+                -0.0, 
+                1.0
+            ], 
+            "type" : "VEC4"
+        }, 
+        {
+            "bufferView" : 24, 
+            "componentType" : 5126, 
+            "count" : 128, 
+            "max" : [
+                0.0, 
+                1.0
+            ], 
+            "min" : [
+                0.0, 
+                1.0
+            ], 
+            "type" : "VEC2"
         }
     ], 
     "asset" : {
@@ -333,11 +467,65 @@
             "byteLength" : 9552, 
             "byteOffset" : 343416, 
             "target" : 34962
+        }, 
+        {
+            "buffer" : 0, 
+            "byteLength" : 1512, 
+            "byteOffset" : 352968, 
+            "target" : 34963
+        }, 
+        {
+            "buffer" : 0, 
+            "byteLength" : 3264, 
+            "byteOffset" : 354480, 
+            "target" : 34962
+        }, 
+        {
+            "buffer" : 0, 
+            "byteLength" : 3264, 
+            "byteOffset" : 357744, 
+            "target" : 34962
+        }, 
+        {
+            "buffer" : 0, 
+            "byteLength" : 2176, 
+            "byteOffset" : 361008, 
+            "target" : 34962
+        }, 
+        {
+            "buffer" : 0, 
+            "byteLength" : 768, 
+            "byteOffset" : 363184, 
+            "target" : 34963
+        }, 
+        {
+            "buffer" : 0, 
+            "byteLength" : 1536, 
+            "byteOffset" : 363952, 
+            "target" : 34962
+        }, 
+        {
+            "buffer" : 0, 
+            "byteLength" : 1536, 
+            "byteOffset" : 365488, 
+            "target" : 34962
+        }, 
+        {
+            "buffer" : 0, 
+            "byteLength" : 2048, 
+            "byteOffset" : 367024, 
+            "target" : 34962
+        }, 
+        {
+            "buffer" : 0, 
+            "byteLength" : 1024, 
+            "byteOffset" : 369072, 
+            "target" : 34962
         }
     ], 
     "buffers" : [
         {
-            "byteLength" : 352968, 
+            "byteLength" : 370096, 
             "uri" : "buttons.bin"
         }
     ], 
@@ -393,6 +581,33 @@
                     "indices" : 12
                 }
             ]
+        }, 
+        {
+            "name" : "socleinside", 
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "NORMAL" : 18, 
+                        "POSITION" : 17, 
+                        "TEXCOORD_0" : 19
+                    }, 
+                    "indices" : 16
+                }
+            ]
+        }, 
+        {
+            "name" : "socleoutside", 
+            "primitives" : [
+                {
+                    "attributes" : {
+                        "NORMAL" : 22, 
+                        "POSITION" : 21, 
+                        "TANGENT" : 23, 
+                        "TEXCOORD_0" : 24
+                    }, 
+                    "indices" : 20
+                }
+            ]
         }
     ], 
     "nodes" : [
@@ -424,6 +639,14 @@
             ]
         }, 
         {
+            "mesh" : 4, 
+            "name" : "socleinside"
+        }, 
+        {
+            "mesh" : 5, 
+            "name" : "socleoutside"
+        }, 
+        {
             "mesh" : 0, 
             "name" : "sound", 
             "translation" : [
@@ -439,6 +662,8 @@
             "name" : "Scene", 
             "nodes" : [
                 3, 
+                4, 
+                5, 
                 1, 
                 2, 
                 0

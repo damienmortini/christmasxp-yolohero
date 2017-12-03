@@ -1,4 +1,4 @@
-import TweenLite from "gsap";
+import TweenLite from "gsap/TweenLite";
 import GLText from "dlib/gl/GLText.js";
 import GLTexture from "dlib/gl/GLTexture.js";
 import Matrix4 from "dlib/math/Matrix4.js";
@@ -52,7 +52,7 @@ export default class MainText extends GLText {
     }
     if(data[0]) {
       this.textContent = data[0];
-      TweenLite.killAll(this);
+      TweenLite.killTweensOf(this);
       TweenLite.fromTo(this, .2, {
         _opacity: 0,
         _scale: 0

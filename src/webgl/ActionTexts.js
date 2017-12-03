@@ -12,8 +12,12 @@ import RayShader from "dlib/shaders/RayShader.js";
 import PBRShader from "dlib/shaders/PBRShader.js";
 import CameraShader from "dlib/shaders/CameraShader.js";
 import NoiseShader from "dlib/shaders/NoiseShader.js";
+import TweenLite from "gsap/TweenLite";
 
 let DEFAULT_TEXT;
+
+const MATRIX4 = new Matrix4();
+const SCALE = .6;
 
 const TEXTS = new Map([
   ["mouse", "Move your mouse"],
@@ -25,23 +29,27 @@ const TEXTS = new Map([
 const TYPES_DATA = new Map([
   ["mouse", {
     rotation: 0,
+    position: -3,
     uvOffset: [0, 0],
-    color: "#0018a1"
+    color: hexToRGB("#0018a1")
   }],
   ["keyboard", {
     rotation: 0,
+    position: -1,
     uvOffset: [.5, 0],
-    color: "#7942b1"
+    color: hexToRGB("#7942b1")
   }],
   ["motion", {
     rotation: 0,
+    position: 1,
     uvOffset: [0, .5],
-    color: "#f8c401"
+    color: hexToRGB("#f8c401")
   }],
   ["sound", {
     rotation: 0,
+    position: 3,
     uvOffset: [.5, .5],
-    color: "#bd0004"
+    color: hexToRGB("#bd0004")
   }]
 ]);
 
@@ -165,8 +173,8 @@ export default class ActionTexts {
               Light(vec3(1.), vec3(0.), vec3(-1.), 1.),
               vPosition,
               vNormal,
-              PhysicallyBasedMaterial(diffuse, pattern.r, (1. - pattern.r), 1.)
-              // PhysicallyBasedMaterial(diffuse, 0., .5, 1.)
+              // PhysicallyBasedMaterial(diffuse, pattern.r, (1. - pattern.r), 1.)
+              PhysicallyBasedMaterial(diffuse, 0., 1., 1.)
             );
 
             // color = mix(vec3(1.), diffuse, pattern.r);
@@ -226,9 +234,6 @@ export default class ActionTexts {
 
     this._texts = new Map();
 
-    
-    const ACTION_TYPES = [...TEXTS.keys()];
-
     for (let action of this.player.actions) {
       if(!action.type) {
         continue;
@@ -241,17 +246,18 @@ export default class ActionTexts {
       this._texts.set(action, {
         type: action.type,
         textContent: text,
-        position: ACTION_TYPES.indexOf(action.type) - (ACTION_TYPES.length - 1) * .5,
+        position: typeData.position,
         transform: new Matrix4(),
         opacity: 0,
         rotation: typeData.rotation,
-        color: hexToRGB(typeData.color)
+        color: typeData.color
       });
     }
 
     this._texturesData = new Map();
+    this._socles = new Map();
 
-    for (let actionType of ACTION_TYPES) {
+    for (let actionType of TYPES_DATA.keys()) {
       const texture = new GLTexture({
         gl: this.gl,
         minFilter: this.gl.LINEAR,
@@ -263,6 +269,10 @@ export default class ActionTexts {
       this._texturesData.set(actionType, {
         texture,
         scaleOffset: new Vector4(DEFAULT_TEXT._scaleOffset)
+      });
+
+      this._socles.set(actionType, {
+        push: 0
       });
     }
 
@@ -277,6 +287,13 @@ export default class ActionTexts {
     }
 
     this.actionsDetector.onActionComplete.add(this.onActionComplete.bind(this));
+    this.actionsDetector.onAction.add(this.onAction.bind(this));
+  }
+
+  onAction({type}) {
+    TweenLite.to(this._socles.get(type), .1, {
+      push: 1
+    });
   }
 
   onActionComplete({action}) {
@@ -308,10 +325,10 @@ export default class ActionTexts {
       }
       text.transform.identity();
       text.transform.rotateY(text.rotation - progress);
-      text.transform.x = text.position * 2;
+      text.transform.x = text.position;
       text.transform.z = progress;
-      text.transform.scale(.6);
-      text.transform.scale(1 + Math.max(0, 1. - Math.abs(progress) * 2));
+      text.transform.scale(SCALE);
+      // text.transform.scale(1 + Math.max(0, 1. - Math.abs(progress) * 2));
       text.transform.multiply(this.transform, text.transform);
     }
 
@@ -325,9 +342,11 @@ export default class ActionTexts {
     
     for (let [type, textsArray] of this._typeSortedTexts) {
       const textureData = this._texturesData.get(type);
+      const typeData = TYPES_DATA.get(type);
       textureData.texture.bind();
-      this.program.uniforms.set("uvOffset", TYPES_DATA.get(type).uvOffset);
+      this.program.uniforms.set("uvOffset", typeData.uvOffset);
       this.program.uniforms.set("scaleOffset", textureData.scaleOffset);
+      this.program.uniforms.set("diffuse", typeData.color);
       
       const mesh = this._meshes.get(type);
       mesh.indices.buffer.bind();
@@ -337,12 +356,34 @@ export default class ActionTexts {
         if(!text.opacity) {
           continue;
         }
-        this.program.uniforms.set("diffuse", text.color);
         this.program.uniforms.set("opacity", text.opacity);
         this.program.uniforms.set("transform", text.transform);
         mesh.draw();
       }
     }
+
+    for (let nameMesh of ["socleoutside", "socleinside"]) {
+      const mesh = this._meshes.get(nameMesh);
+      mesh.indices.buffer.bind();
+      this.program.attributes.set(mesh.attributes);
+      
+      for (let [type, typeData] of TYPES_DATA) {
+        this.program.uniforms.set("opacity", 1);
+        MATRIX4.identity();
+        MATRIX4.x = typeData.position;
+        if(nameMesh === "socleinside") {
+          const socle = this._socles.get(type);
+          socle.push += -socle.push * .2;
+          MATRIX4.y = (socle.push - 1) * .3;
+        }
+        MATRIX4.scale(SCALE);
+        MATRIX4.multiply(this.transform, MATRIX4);
+        this.program.uniforms.set("diffuse", typeData.color);
+        this.program.uniforms.set("transform", MATRIX4);
+        mesh.draw();
+      }
+    }
+
     this.gl.disable(this.gl.BLEND);
   }
 }

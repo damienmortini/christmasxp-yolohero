@@ -76,8 +76,8 @@ export default class View {
       player
     });
     this.ground.transform.rotateX(.1);
-    this.ground.transform.y = -3;
-    this.ground.transform.z = 3;
+    this.ground.transform.y = -3.2;
+    this.ground.transform.z = 3.2;
 
     this.scoreText = new ScoreText({
       gl: this.gl
