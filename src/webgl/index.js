@@ -59,7 +59,7 @@ Loader.onLoad.then(() => {
     resize() {
       let width = this.canvas.offsetWidth;
       let height = this.canvas.offsetHeight;
-
+      
       this.canvas.width = width * window.devicePixelRatio;
       this.canvas.height = height * window.devicePixelRatio;
 

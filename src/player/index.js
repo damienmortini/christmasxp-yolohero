@@ -57,11 +57,11 @@ Loader.onLoad.then(() => {
           };
           const widget = SC.Widget(this.querySelector("iframe"));
           widget.bind(SC.Widget.Events.READY, () => {
-            widget.setVolume(MUTE ? 0 : 1);
+            widget.setVolume(MUTE ? 0 : 100);
             widget.play();
           });
           widget.bind(SC.Widget.Events.PLAY_PROGRESS, (e) => {
-            this._player.currentTime = e.currentPosition * .001;
+            this._player.currentTime += (e.currentPosition * .001 - this._player.currentTime) * .2;
           });
         });
       }

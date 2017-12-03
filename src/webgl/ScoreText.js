@@ -10,11 +10,11 @@ export default class ScoreText extends GLText {
   }) {
     super({
       gl,
-      textScale: .25,
+      textScale: 1,
       textAlign: "center",
       textContent: "0",
       fillStyle: "white",
-      font: "240px Shrikhand-Regular",
+      font: "50px Shrikhand-Regular",
       paddingPercentageWidth: .2,
       paddingPercentageHeight: .2,
       offsetYPercentage: .25

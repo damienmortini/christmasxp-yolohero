@@ -22,6 +22,7 @@ christmasxp-yolohero-main christmasxp-yolohero-player {
   opacity: 1;
   transition-property: transform, opacity;
   transition-duration: 1s;
+  display: none;
 }
 
 christmasxp-yolohero-main christmasxp-yolohero-player:hover {

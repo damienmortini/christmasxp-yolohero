@@ -87,9 +87,9 @@ export default class View {
       camera: this.camera
     });
 
-    this.ui.draw({
-      camera: this.camera
-    });
+    // this.ui.draw({
+    //   camera: this.camera
+    // });
 
     this.mainText.draw({
       camera: this.camera

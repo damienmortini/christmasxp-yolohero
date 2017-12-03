@@ -1,3 +1,4 @@
+import Loader from "dlib/utils/Loader.js";
 import GLText from "dlib/gl/GLText.js";
 import GLTexture from "dlib/gl/GLTexture.js";
 import Matrix4 from "dlib/math/Matrix4.js";
@@ -15,11 +16,11 @@ import NoiseShader from "dlib/shaders/NoiseShader.js";
 let DEFAULT_TEXT;
 
 const TEXTS = new Map([
-  ["motion", "Move your body"],
-  ["click", "Click!"],
   ["mouse", "Move your mouse"],
+  ["keyboard", "Press "],
+  ["motion", "Move your body"],
+  // ["click", "Click!"],
   ["sound", "Shout!"],
-  ["keyboard", "Press "]
 ]);
 
 export default class ActionTexts {
@@ -32,7 +33,16 @@ export default class ActionTexts {
     this.player = player;
     this.actionsDetector = actionsDetector;
 
-    GLTFLoader.load("src/webgl/button/button.gltf").then((data) => {
+    Promise.all([
+      GLTFLoader.load("src/webgl/button/buttons.gltf"), 
+      Loader.load("src/webgl/button/pattern.png")
+    ]).then(([data, image]) => {
+      this._patternTexture = new GLTexture({
+        gl: this.gl,
+        data: image,
+        minFilter: this.gl.LINEAR
+      });
+
       this.mesh = new GLTFMesh({
           gl: this.gl, 
           data: data.meshes[0]
@@ -40,6 +50,9 @@ export default class ActionTexts {
 
       this.program = new GLProgram({
         gl: this.gl,
+        uniforms: [
+          ["patternTexture", 1]
+        ],
         vertexShader: `#version 300 es
           ${CameraShader.Camera()}
 
@@ -52,15 +65,16 @@ export default class ActionTexts {
           in vec2 uv;
   
           out vec2 vUv;
+          out vec2 vUv2;
+          out vec3 vPosition;
           out vec3 vNormal;
           out vec4 vGLPosition;
   
           void main() {
             vec3 position = position;
-            // position *= scaleOffset.xy;
-            // position += scaleOffset.zw;
             gl_Position = camera.projectionView * transform * vec4(position, 1.);
             vGLPosition = gl_Position;
+            vPosition = position;
 
             // compute text uv
             vUv = uv;
@@ -70,6 +84,10 @@ export default class ActionTexts {
             vUv *= 4.;
             vUv = vUv * .5 + .5;
             vNormal = normal;
+
+            vUv2 = mix(position.xy, position.xz,abs(normal.y));
+            vUv2 *= 2.;
+            vUv2 = uv * 10.;
           }
         `,
         fragmentShader: `#version 300 es
@@ -78,13 +96,16 @@ export default class ActionTexts {
           ${CameraShader.Camera()}
 
           uniform sampler2D textTexture;
+          uniform sampler2D patternTexture;
           uniform float opacity;
           uniform vec3 diffuse;
           uniform Camera camera;
   
           in vec3 vNormal;
           in vec2 vUv;
+          in vec2 vUv2;
           in vec4 vGLPosition;
+          in vec3 vPosition;
   
           out vec4 fragColor;
 
@@ -97,12 +118,8 @@ export default class ActionTexts {
           ${PBRShader.computeGGXLighting()}
           ${PBRShader.computePBRLighting({
             pbrReflectionFromRay: `
-              // vec3 color = texture(webcamTexture, ray.direction.xy * 2.).rgb;
-              // float grey = (color.r + color.g + color.b) / 3.;
-              // color = mix(colors[0], colors[1], smoothstep(0., .33, grey));
-              // color = mix(color, colors[2], smoothstep(.33, .66, grey));
-              // return color;
-              return vec3(.5);
+              vec3 color = texture(patternTexture, ray.direction.xy * 2.).rgb;
+              return color;
             `
           })}
   
@@ -113,18 +130,21 @@ export default class ActionTexts {
             vec3 color = vec3(1.);
 
             vec4 text = texture(textTexture, vUv);
+            vec4 pattern = texture(patternTexture, vUv2);
 
             color = computePBRLighting(
               ray, 
               Light(vec3(1.), vec3(0.), vec3(-1.), 1.),
-              vGLPosition.xyz,
+              vPosition,
               vNormal,
-              PhysicallyBasedMaterial(diffuse, 0., .1, 2.)
+              PhysicallyBasedMaterial(diffuse, pattern.r, opacity * (1. - pattern.r), 1.)
+              // PhysicallyBasedMaterial(diffuse, 0., 1., 1.)
             );
 
             fragColor.rgb = color;
-            fragColor.rgb += text.rgb * text.a;
-            fragColor.a = opacity;
+            // fragColor.rgb += text.rgb * text.a;
+            // fragColor.a = opacity;
+            fragColor.a = 1.;
           }
         `
       });
@@ -133,13 +153,14 @@ export default class ActionTexts {
     if(!DEFAULT_TEXT) {
       DEFAULT_TEXT = new GLText({
         gl: this.gl,
-        textScale: .5,
+        textScale: 1,
         textAlign: "center",
         textContent: "Move",
         fillStyle: "white",
-        // font: "100px Shrikhand-Regular",
-        paddingX: .2,
-        paddingY: .2
+        font: "50px Shrikhand-Regular",
+        offsetYPercentage: .2,
+        paddingPercentageWidth: .2,
+        paddingPercentageHeight: .2
       });
     }
     //   DEFAULT_TEXT.program.add({
@@ -177,6 +198,7 @@ export default class ActionTexts {
 
     const textContents = new Set();
     
+    const ACTION_TYPES = [...TEXTS.keys()];
     for (let action of this.player.actions) {
       if(!action.type) {
         continue;
@@ -187,9 +209,10 @@ export default class ActionTexts {
       }
       this._texts.set(action, {
         textContent: text,
+        position: ACTION_TYPES.indexOf(action.type) - ACTION_TYPES.length * .5,
         transform: new Matrix4(),
         opacity: 0,
-        color: [1, 1, 1]
+        color: hexToRGB("#7942b1")
       });
       textContents.add(text);
     }
@@ -241,7 +264,7 @@ export default class ActionTexts {
       return;
     }
 
-    const angle = .4;
+    const angle = .3;
     const y = -2;
 
     for (let action of this.player.actions) {
@@ -249,17 +272,22 @@ export default class ActionTexts {
       if(!text) {
         continue;
       }
+      const progress = (this.player.currentTime - action.time) * 5;
+      text.opacity = Math.max(0, 1. - Math.abs(progress) * .1);
+      if(!text.opacity) {
+        continue;
+      }
       text.transform.identity();
       text.transform.rotateX(angle);
-      const progress = (this.player.currentTime - action.time) * 5;
+      text.transform.rotateY(1);
+      text.transform.x = text.position;
       text.transform.y = -progress * Math.sin(angle);
       text.transform.y += y;
       text.transform.z = progress * Math.cos(angle);
       text.transform.z += -y;
       // text.transform.z = progress;
-      text.transform.scale([.5, .2, .5]);
+      text.transform.scale(.5);
       text.transform.scale(1 + Math.max(0, 1. - Math.abs(progress) * 2));
-      text.opacity = Math.max(0, 1. - Math.abs(progress) * .05);
     }
 
     this.gl.enable(this.gl.BLEND);
@@ -268,6 +296,9 @@ export default class ActionTexts {
     this.program.attributes.set(this.mesh.attributes);
     this.program.uniforms.set("camera", camera);
     this.mesh.indices.buffer.bind();
+    this._patternTexture.bind({
+      unit: 1
+    });
     
     for (let [textContent, textsArray] of this._textContentSortedTexts) {
       const textureData = this._texturesData.get(textContent);
