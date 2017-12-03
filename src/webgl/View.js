@@ -24,6 +24,8 @@ export default class View {
     this.webcam = webcam;
     this.player = player;
 
+    this.gl.enable(this.gl.CULL_FACE);
+
     this.camera = new Camera();
 
     this.cameraController = new TrackballController({
@@ -72,13 +74,14 @@ export default class View {
  
   update() {
     this.gl.clearColor(0, 0, 0, 1);
-    this.gl.enable(this.gl.CULL_FACE);
 
     this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
 
     this.cameraController.update();
     
+    this.gl.disable(this.gl.DEPTH_TEST);
     this.background.draw();
+    this.gl.enable(this.gl.DEPTH_TEST);
 
     this.actionTexts.draw({
       camera: this.camera

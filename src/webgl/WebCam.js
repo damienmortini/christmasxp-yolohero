@@ -5,7 +5,7 @@ import BlurShader from "dlib/shaders/BlurShader.js";
 import GLMesh from "dlib/gl/GLMesh.js";
 import Ticker from "dlib/utils/Ticker.js";
 
-const FRAME_BUFFER_SIZE = 256;
+const FRAME_BUFFER_SIZE = 512;
 const BLUR_PASSES = 2;
 
 export default class WebCam {
@@ -197,7 +197,7 @@ export default class WebCam {
 
     this.program.attributes.set(this._mesh.attributes);    
 
-    this.gl.disable(this.gl.CULL_FACE);  
+    this.gl.disable(this.gl.CULL_FACE);
     this.gl.disable(this.gl.DEPTH_TEST);
 
     this.frameBuffers[0].bind();
@@ -264,6 +264,9 @@ export default class WebCam {
     }
     frequenciesSum /= this._audioData.length;
     this.volume = frequenciesSum / 255;
+
+    this.gl.enable(this.gl.CULL_FACE);
+    this.gl.enable(this.gl.DEPTH_TEST);
   }
 
   get frameTexture() {
