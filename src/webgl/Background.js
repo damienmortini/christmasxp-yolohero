@@ -131,6 +131,7 @@ export default class Background {
 
           // vec3 color = colors[0];
           // color = vec3(0.);
+          // color = vec3(step(.4, bump.w));
 
           float light1 = max(0., dot(normalize(vec3(1., 0., 1.)), bump.xyz));
           // color = mix(color, colors[1], light1);

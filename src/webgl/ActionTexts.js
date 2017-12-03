@@ -19,13 +19,12 @@ const TEXTS = new Map([
   ["mouse", "Move your mouse"],
   ["keyboard", "Press "],
   ["motion", "Move your body"],
-  // ["click", "Click!"],
   ["sound", "Shout!"],
 ]);
 
 const TYPES_DATA = new Map([
   ["mouse", {
-    rotation: 1,
+    rotation: 0,
     uvOffset: [0, 0],
     color: "#0018a1"
   }],
@@ -55,6 +54,7 @@ export default class ActionTexts {
     this.gl = gl;
     this.player = player;
     this.actionsDetector = actionsDetector;
+    this.transform = new Matrix4();
 
     Promise.all([
       GLTFLoader.load("src/webgl/button/buttons.gltf"), 
@@ -112,7 +112,8 @@ export default class ActionTexts {
             vUv.y *= .25;
             vUv *= 4.;
             vUv = vUv * .5 + .5;
-            vNormal = normal;
+            vNormal = mat3(transform) * normal;
+            vNormal = normalize(vNormal);
 
             vUv2 = fract(uv * .5 + uvOffset) * 20.;
           }
@@ -154,21 +155,21 @@ export default class ActionTexts {
 
             Ray ray = rayFromCamera(vGLPosition.xy / vGLPosition.z, camera);
             
-            vec3 color = vec3(1.);
+            vec3 color = vec3(0.);
 
             vec4 text = texture(textTexture, vUv);
             vec4 pattern = texture(patternTexture, vUv2 );
 
-            color = computePBRLighting(
+            color += computePBRLighting(
               ray, 
               Light(vec3(1.), vec3(0.), vec3(-1.), 1.),
               vPosition,
               vNormal,
-              PhysicallyBasedMaterial(diffuse, pattern.r, 1. - pattern.r, 1.)
-              // PhysicallyBasedMaterial(diffuse, 0., 1., 1.)
+              PhysicallyBasedMaterial(diffuse, pattern.r, (1. - pattern.r), 1.)
+              // PhysicallyBasedMaterial(diffuse, 0., .5, 1.)
             );
 
-            // color = mix(color, diffuse * 1.5, pattern.r);
+            // color = mix(vec3(1.), diffuse, pattern.r);
 
             fragColor.rgb = color;
             // fragColor.rgb += text.rgb * text.a;
@@ -295,30 +296,23 @@ export default class ActionTexts {
       return;
     }
 
-    const angle = .3;
-    const y = -2.5;
-
     for (let action of this.player.actions) {
       const text = this._texts.get(action);
       if(!text) {
         continue;
       }
       const progress = (this.player.currentTime - action.time) * 5;
-      text.opacity = Math.max(0, 1. - Math.abs(progress) * .1);
+      text.opacity = Math.max(0, 1. - Math.abs(progress) * (progress < 0 ? .05 : .2));
       if(!text.opacity) {
         continue;
       }
       text.transform.identity();
-      text.transform.rotateX(angle);
-      text.transform.rotateY(text.rotation);
-      text.transform.x = text.position * 1.5;
-      text.transform.y = -progress * Math.sin(angle);
-      text.transform.y += y;
-      text.transform.z = progress * Math.cos(angle);
-      text.transform.z += -y;
-      // text.transform.z = progress;
-      text.transform.scale(.5);
+      text.transform.rotateY(text.rotation - progress);
+      text.transform.x = text.position * 2;
+      text.transform.z = progress;
+      text.transform.scale(.6);
       text.transform.scale(1 + Math.max(0, 1. - Math.abs(progress) * 2));
+      text.transform.multiply(this.transform, text.transform);
     }
 
     this.gl.enable(this.gl.BLEND);

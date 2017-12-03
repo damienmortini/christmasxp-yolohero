@@ -11,6 +11,7 @@ import MainText from "./MainText.js";
 import Ground from "./Ground.js";
 import UI from "./ui/UI.js";
 import ScoreText from "./ScoreText.js";
+import GLTexture from "dlib/gl/GLTexture.js";
 
 Loader.load("src/Shrikhand-Regular.ttf");
 
@@ -29,6 +30,15 @@ export default class View {
 
     this.camera = new Camera();
 
+    const noiseTexture = new GLTexture({
+      gl: this.gl,
+      minFilter: this.gl.LINEAR,
+    });
+    Loader.load("src/webgl/noise.png").then((image) => {
+      noiseTexture.data = image;
+      noiseTexture.generateMipmap();
+    });
+
     this.cameraController = new TrackballController({
       matrix: this.camera.transform,
       distance: 10
@@ -44,6 +54,9 @@ export default class View {
       player,
       actionsDetector
     });
+    this.actionTexts.transform.rotateX(.1);
+    this.actionTexts.transform.y = -3;
+    this.actionTexts.transform.z = 3;
     
     this.mainText = new MainText({
       gl: this.gl,
@@ -58,9 +71,13 @@ export default class View {
 
     this.ground = new Ground({
       gl: this.gl,
+      webcam: this.webcam,
+      noiseTexture,
       player
     });
-    this.ground.transform.y = -2
+    this.ground.transform.rotateX(.1);
+    this.ground.transform.y = -3;
+    this.ground.transform.z = 3;
 
     this.scoreText = new ScoreText({
       gl: this.gl

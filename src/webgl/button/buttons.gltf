@@ -177,9 +177,9 @@
         {
             "bufferView" : 12, 
             "componentType" : 5123, 
-            "count" : 2562, 
+            "count" : 2592, 
             "max" : [
-                1163
+                1193
             ], 
             "min" : [
                 0
@@ -189,7 +189,7 @@
         {
             "bufferView" : 13, 
             "componentType" : 5126, 
-            "count" : 1164, 
+            "count" : 1194, 
             "max" : [
                 1.0, 
                 1.8081873655319214, 
@@ -205,7 +205,7 @@
         {
             "bufferView" : 14, 
             "componentType" : 5126, 
-            "count" : 1164, 
+            "count" : 1194, 
             "max" : [
                 0.9999999403953552, 
                 0.9884029626846313, 
@@ -213,7 +213,7 @@
             ], 
             "min" : [
                 -1.0, 
-                -0.7660452127456665, 
+                -0.7660468220710754, 
                 -0.7660436034202576
             ], 
             "type" : "VEC3"
@@ -221,7 +221,7 @@
         {
             "bufferView" : 15, 
             "componentType" : 5126, 
-            "count" : 1164, 
+            "count" : 1194, 
             "max" : [
                 1.0, 
                 1.0
@@ -312,32 +312,32 @@
         }, 
         {
             "buffer" : 0, 
-            "byteLength" : 5124, 
+            "byteLength" : 5184, 
             "byteOffset" : 309576, 
             "target" : 34963
         }, 
         {
             "buffer" : 0, 
-            "byteLength" : 13968, 
-            "byteOffset" : 314700, 
+            "byteLength" : 14328, 
+            "byteOffset" : 314760, 
             "target" : 34962
         }, 
         {
             "buffer" : 0, 
-            "byteLength" : 13968, 
-            "byteOffset" : 328668, 
+            "byteLength" : 14328, 
+            "byteOffset" : 329088, 
             "target" : 34962
         }, 
         {
             "buffer" : 0, 
-            "byteLength" : 9312, 
-            "byteOffset" : 342636, 
+            "byteLength" : 9552, 
+            "byteOffset" : 343416, 
             "target" : 34962
         }
     ], 
     "buffers" : [
         {
-            "byteLength" : 351948, 
+            "byteLength" : 352968, 
             "uri" : "buttons.bin"
         }
     ], 
