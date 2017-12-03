@@ -23,6 +23,13 @@ const TEXTS = new Map([
   ["sound", "Shout!"],
 ]);
 
+const ROTATIONS = new Map([
+  ["mouse", 1],
+  ["keyboard", 0],
+  ["motion", 0],
+  ["sound", 0],
+]);
+
 export default class ActionTexts {
   constructor({
     gl,
@@ -43,10 +50,17 @@ export default class ActionTexts {
         minFilter: this.gl.LINEAR
       });
 
-      this.mesh = new GLTFMesh({
-          gl: this.gl, 
-          data: data.meshes[0]
-      });
+      console.log(data.meshes);
+
+      this._meshes = new Map();
+
+      for (let mesh of data.meshes) {
+        const glMesh = new GLTFMesh({
+            gl: this.gl, 
+            data: mesh
+        });
+        this._meshes.set(mesh.name, glMesh);
+      }
 
       this.program = new GLProgram({
         gl: this.gl,
@@ -155,7 +169,7 @@ export default class ActionTexts {
         gl: this.gl,
         textScale: 1,
         textAlign: "center",
-        textContent: "Move",
+        textContent: "",
         fillStyle: "white",
         font: "50px Shrikhand-Regular",
         offsetYPercentage: .2,
@@ -196,9 +210,9 @@ export default class ActionTexts {
 
     this._texts = new Map();
 
-    const textContents = new Set();
     
     const ACTION_TYPES = [...TEXTS.keys()];
+
     for (let action of this.player.actions) {
       if(!action.type) {
         continue;
@@ -208,38 +222,39 @@ export default class ActionTexts {
         text = TEXTS.get("keyboard") + action.type.toUpperCase();
       }
       this._texts.set(action, {
+        type: action.type,
         textContent: text,
-        position: ACTION_TYPES.indexOf(action.type) - ACTION_TYPES.length * .5,
+        position: ACTION_TYPES.indexOf(action.type) - (ACTION_TYPES.length - 1) * .5,
         transform: new Matrix4(),
         opacity: 0,
+        rotation: ROTATIONS.get(action.type),
         color: hexToRGB("#7942b1")
       });
-      textContents.add(text);
     }
 
     this._texturesData = new Map();
 
-    for (let actionText of textContents) {
+    for (let actionType of ACTION_TYPES) {
       const texture = new GLTexture({
         gl: this.gl,
         minFilter: this.gl.LINEAR,
         wrapS: this.gl.CLAMP_TO_EDGE,
         wrapT: this.gl.CLAMP_TO_EDGE,
       });
-      DEFAULT_TEXT.textContent = actionText;
+      DEFAULT_TEXT.textContent = TEXTS.get(actionType);
       texture.data = DEFAULT_TEXT._canvas;
-      this._texturesData.set(actionText, {
+      this._texturesData.set(actionType, {
         texture,
         scaleOffset: new Vector4(DEFAULT_TEXT._scaleOffset)
       });
     }
 
-    this._textContentSortedTexts = new Map();
+    this._typeSortedTexts = new Map();
     for (let text of this._texts.values()) {
-      let array = this._textContentSortedTexts.get(text.textContent);
+      let array = this._typeSortedTexts.get(text.type);
       if(!array) {
         array = [];
-        this._textContentSortedTexts.set(text.textContent, array);
+        this._typeSortedTexts.set(text.type, array);
       }
       array.push(text);
     }
@@ -260,7 +275,7 @@ export default class ActionTexts {
   }
 
   draw({camera} = {}) {
-    if(!this.mesh) {
+    if(!this.program) {
       return;
     }
 
@@ -279,8 +294,8 @@ export default class ActionTexts {
       }
       text.transform.identity();
       text.transform.rotateX(angle);
-      text.transform.rotateY(1);
-      text.transform.x = text.position;
+      text.transform.rotateY(text.rotation);
+      // text.transform.x = text.position;
       text.transform.y = -progress * Math.sin(angle);
       text.transform.y += y;
       text.transform.z = progress * Math.cos(angle);
@@ -293,18 +308,20 @@ export default class ActionTexts {
     this.gl.enable(this.gl.BLEND);
     this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
     this.program.use();
-    this.program.attributes.set(this.mesh.attributes);
     this.program.uniforms.set("camera", camera);
-    this.mesh.indices.buffer.bind();
     this._patternTexture.bind({
       unit: 1
     });
     
-    for (let [textContent, textsArray] of this._textContentSortedTexts) {
-      const textureData = this._texturesData.get(textContent);
+    for (let [type, textsArray] of this._typeSortedTexts) {
+      const textureData = this._texturesData.get(type);
       textureData.texture.bind();
       this.program.uniforms.set("scaleOffset", textureData.scaleOffset);
-
+      
+      const mesh = this._meshes.get(type);
+      mesh.indices.buffer.bind();
+      this.program.attributes.set(mesh.attributes);
+      
       for (let text of textsArray) {
         if(!text.opacity) {
           continue;
@@ -312,7 +329,7 @@ export default class ActionTexts {
         this.program.uniforms.set("diffuse", text.color);
         this.program.uniforms.set("opacity", text.opacity);
         this.program.uniforms.set("transform", text.transform);
-        this.mesh.draw();
+        mesh.draw();
       }
     }
     this.gl.disable(this.gl.BLEND);
