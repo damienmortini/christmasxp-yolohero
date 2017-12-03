@@ -23,11 +23,27 @@ const TEXTS = new Map([
   ["sound", "Shout!"],
 ]);
 
-const ROTATIONS = new Map([
-  ["mouse", 1],
-  ["keyboard", 0],
-  ["motion", 0],
-  ["sound", 0],
+const TYPES_DATA = new Map([
+  ["mouse", {
+    rotation: 1,
+    uvOffset: [0, 0],
+    color: "#0018a1"
+  }],
+  ["keyboard", {
+    rotation: 0,
+    uvOffset: [.5, 0],
+    color: "#7942b1"
+  }],
+  ["motion", {
+    rotation: 0,
+    uvOffset: [0, .5],
+    color: "#f8c401"
+  }],
+  ["sound", {
+    rotation: 0,
+    uvOffset: [.5, .5],
+    color: "#bd0004"
+  }]
 ]);
 
 export default class ActionTexts {
@@ -50,8 +66,6 @@ export default class ActionTexts {
         minFilter: this.gl.LINEAR
       });
 
-      console.log(data.meshes);
-
       this._meshes = new Map();
 
       for (let mesh of data.meshes) {
@@ -73,6 +87,7 @@ export default class ActionTexts {
           uniform mat4 transform;
           uniform Camera camera;
           uniform vec4 scaleOffset;
+          uniform vec2 uvOffset;
   
           in vec3 position;
           in vec3 normal;
@@ -99,9 +114,7 @@ export default class ActionTexts {
             vUv = vUv * .5 + .5;
             vNormal = normal;
 
-            vUv2 = mix(position.xy, position.xz,abs(normal.y));
-            vUv2 *= 2.;
-            vUv2 = uv * 10.;
+            vUv2 = fract(uv * .5 + uvOffset) * 20.;
           }
         `,
         fragmentShader: `#version 300 es
@@ -144,20 +157,22 @@ export default class ActionTexts {
             vec3 color = vec3(1.);
 
             vec4 text = texture(textTexture, vUv);
-            vec4 pattern = texture(patternTexture, vUv2);
+            vec4 pattern = texture(patternTexture, vUv2 );
 
             color = computePBRLighting(
               ray, 
               Light(vec3(1.), vec3(0.), vec3(-1.), 1.),
               vPosition,
               vNormal,
-              PhysicallyBasedMaterial(diffuse, pattern.r, opacity * (1. - pattern.r), 1.)
+              PhysicallyBasedMaterial(diffuse, pattern.r, 1. - pattern.r, 1.)
               // PhysicallyBasedMaterial(diffuse, 0., 1., 1.)
             );
 
+            // color = mix(color, diffuse * 1.5, pattern.r);
+
             fragColor.rgb = color;
             // fragColor.rgb += text.rgb * text.a;
-            // fragColor.a = opacity;
+            fragColor.a = opacity;
             fragColor.a = 1.;
           }
         `
@@ -221,14 +236,15 @@ export default class ActionTexts {
       if(!text) {
         text = TEXTS.get("keyboard") + action.type.toUpperCase();
       }
+      const typeData = TYPES_DATA.get(action.type);
       this._texts.set(action, {
         type: action.type,
         textContent: text,
         position: ACTION_TYPES.indexOf(action.type) - (ACTION_TYPES.length - 1) * .5,
         transform: new Matrix4(),
         opacity: 0,
-        rotation: ROTATIONS.get(action.type),
-        color: hexToRGB("#7942b1")
+        rotation: typeData.rotation,
+        color: hexToRGB(typeData.color)
       });
     }
 
@@ -267,7 +283,7 @@ export default class ActionTexts {
     if(!text) {
       return;
     }
-    text.color = hexToRGB(action.success ? "#00ff00" : "#ff0000");
+    // text.color = hexToRGB(action.success ? "#00ff00" : "#ff0000");
   }
 
   resize({width, height}) {
@@ -280,7 +296,7 @@ export default class ActionTexts {
     }
 
     const angle = .3;
-    const y = -2;
+    const y = -2.5;
 
     for (let action of this.player.actions) {
       const text = this._texts.get(action);
@@ -295,7 +311,7 @@ export default class ActionTexts {
       text.transform.identity();
       text.transform.rotateX(angle);
       text.transform.rotateY(text.rotation);
-      // text.transform.x = text.position;
+      text.transform.x = text.position * 1.5;
       text.transform.y = -progress * Math.sin(angle);
       text.transform.y += y;
       text.transform.z = progress * Math.cos(angle);
@@ -316,6 +332,7 @@ export default class ActionTexts {
     for (let [type, textsArray] of this._typeSortedTexts) {
       const textureData = this._texturesData.get(type);
       textureData.texture.bind();
+      this.program.uniforms.set("uvOffset", TYPES_DATA.get(type).uvOffset);
       this.program.uniforms.set("scaleOffset", textureData.scaleOffset);
       
       const mesh = this._meshes.get(type);

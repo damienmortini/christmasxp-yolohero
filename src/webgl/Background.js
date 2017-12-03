@@ -89,7 +89,8 @@ export default class Background {
             float grey = (color.r + color.g + color.b) / 3.;
             color = mix(colors[0], colors[1], smoothstep(0., .33, grey));
             color = mix(color, colors[2], smoothstep(.33, .66, grey));
-            return color;
+            return .8 + vec3(step(.5, grey)) * .2;
+            // return color;
           `
         })}
 
@@ -125,7 +126,7 @@ export default class Background {
             Light(vec3(1.), vec3(0.), vec3(-1.), 1.),
             vec3(vPosition, 0.),
             bump.xyz,
-            PhysicallyBasedMaterial(colors[0], 0., .1, 2.)
+            PhysicallyBasedMaterial(colors[2], 0., .1, 2.)
           );
 
           // vec3 color = colors[0];
