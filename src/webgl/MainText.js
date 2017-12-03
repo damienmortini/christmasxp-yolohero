@@ -11,11 +11,11 @@ export default class MainText extends GLText {
   }) {
     super({
       gl,
-      textScale: 1,
       textAlign: "center",
       textContent: "",
       fillStyle: "white",
-      font: "50px Shrikhand-Regular",
+      textScale: 1 / window.devicePixelRatio,
+      font: `${50 * window.devicePixelRatio}px Shrikhand-Regular`,
       paddingPercentageWidth: .2,
       paddingPercentageHeight: .2,
       offsetYPercentage: .2
@@ -58,7 +58,7 @@ export default class MainText extends GLText {
         _scale: 0
       }, {
         _opacity: 1,
-        _scale: data[1] || 1,
+        _scale: 1000 / this._canvas.width,
         ease: Back.easeOut
       })
       TweenLite.to(this, .2, {

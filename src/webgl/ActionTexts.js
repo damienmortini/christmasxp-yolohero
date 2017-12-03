@@ -19,35 +19,32 @@ let DEFAULT_TEXT;
 const MATRIX4 = new Matrix4();
 const SCALE = .6;
 
-const TEXTS = new Map([
-  ["mouse", "Move your mouse"],
-  ["keyboard", "Press "],
-  ["motion", "Move your body"],
-  ["sound", "Shout!"],
-]);
-
 const TYPES_DATA = new Map([
   ["mouse", {
     rotation: 0,
     position: -3,
+    text: "Move mouse!",
     uvOffset: [0, 0],
     color: hexToRGB("#0018a1")
   }],
   ["keyboard", {
     rotation: 0,
     position: -1,
+    text: "Press keyboard!",
     uvOffset: [.5, 0],
     color: hexToRGB("#7942b1")
   }],
   ["motion", {
     rotation: 0,
     position: 1,
+    text: "Dance!",
     uvOffset: [0, .5],
     color: hexToRGB("#f8c401")
   }],
   ["sound", {
     rotation: 0,
     position: 3,
+    text: "Shout!",
     uvOffset: [.5, .5],
     color: hexToRGB("#bd0004")
   }]
@@ -117,7 +114,7 @@ export default class ActionTexts {
             vUv = uv;
             vUv = vUv * 2. - 1.;
             vUv.xy *= 1. / scaleOffset.xy;
-            vUv.y *= .25;
+            vUv.y *= .2;
             vUv *= 4.;
             vUv = vUv * .5 + .5;
             vNormal = mat3(transform) * normal;
@@ -134,6 +131,7 @@ export default class ActionTexts {
           uniform sampler2D textTexture;
           uniform sampler2D patternTexture;
           uniform float opacity;
+          uniform float text;
           uniform vec3 diffuse;
           uniform Camera camera;
   
@@ -165,8 +163,10 @@ export default class ActionTexts {
             
             vec3 color = vec3(0.);
 
-            vec4 text = texture(textTexture, vUv);
+            vec4 textTexel = texture(textTexture, vUv);
             vec4 pattern = texture(patternTexture, vUv2 );
+
+            textTexel.a *= text;
 
             color += computePBRLighting(
               ray, 
@@ -174,13 +174,13 @@ export default class ActionTexts {
               vPosition,
               vNormal,
               // PhysicallyBasedMaterial(diffuse, pattern.r, (1. - pattern.r), 1.)
-              PhysicallyBasedMaterial(diffuse, 0., 1., 1.)
+              PhysicallyBasedMaterial(diffuse, textTexel.a * .4, 1. - textTexel.a, 1.)
             );
 
             // color = mix(vec3(1.), diffuse, pattern.r);
 
             fragColor.rgb = color;
-            // fragColor.rgb += text.rgb * text.a;
+            // fragColor.rgb += textTexel.rgb * textTexel.a;
             fragColor.a = opacity;
             fragColor.a = 1.;
           }
@@ -195,7 +195,7 @@ export default class ActionTexts {
         textAlign: "center",
         textContent: "",
         fillStyle: "white",
-        font: "50px Shrikhand-Regular",
+        font: "40px Shrikhand-Regular",
         offsetYPercentage: .2,
         paddingPercentageWidth: .2,
         paddingPercentageHeight: .2
@@ -232,20 +232,15 @@ export default class ActionTexts {
     //   })
     // }
 
-    this._texts = new Map();
+    this._actionObjects = new Map();
 
     for (let action of this.player.actions) {
       if(!action.type) {
         continue;
       }
-      let text = TEXTS.get(action.type);
-      if(!text) {
-        text = TEXTS.get("keyboard") + action.type.toUpperCase();
-      }
       const typeData = TYPES_DATA.get(action.type);
-      this._texts.set(action, {
+      this._actionObjects.set(action, {
         type: action.type,
-        textContent: text,
         position: typeData.position,
         transform: new Matrix4(),
         opacity: 0,
@@ -257,27 +252,27 @@ export default class ActionTexts {
     this._texturesData = new Map();
     this._socles = new Map();
 
-    for (let actionType of TYPES_DATA.keys()) {
+    for (let [type, data] of TYPES_DATA) {
       const texture = new GLTexture({
         gl: this.gl,
         minFilter: this.gl.LINEAR,
         wrapS: this.gl.CLAMP_TO_EDGE,
         wrapT: this.gl.CLAMP_TO_EDGE,
       });
-      DEFAULT_TEXT.textContent = TEXTS.get(actionType);
+      DEFAULT_TEXT.textContent = data.text;
       texture.data = DEFAULT_TEXT._canvas;
-      this._texturesData.set(actionType, {
+      this._texturesData.set(type, {
         texture,
         scaleOffset: new Vector4(DEFAULT_TEXT._scaleOffset)
       });
 
-      this._socles.set(actionType, {
+      this._socles.set(type, {
         push: 0
       });
     }
 
     this._typeSortedTexts = new Map();
-    for (let text of this._texts.values()) {
+    for (let text of this._actionObjects.values()) {
       let array = this._typeSortedTexts.get(text.type);
       if(!array) {
         array = [];
@@ -297,7 +292,7 @@ export default class ActionTexts {
   }
 
   onActionComplete({action}) {
-    const text = this._texts.get(action);
+    const text = this._actionObjects.get(action);
     if(!text) {
       return;
     }
@@ -314,7 +309,7 @@ export default class ActionTexts {
     }
 
     for (let action of this.player.actions) {
-      const text = this._texts.get(action);
+      const text = this._actionObjects.get(action);
       if(!text) {
         continue;
       }
@@ -335,17 +330,15 @@ export default class ActionTexts {
     this.gl.enable(this.gl.BLEND);
     this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
     this.program.use();
+    this.program.uniforms.set("text", 0);
     this.program.uniforms.set("camera", camera);
     this._patternTexture.bind({
       unit: 1
     });
     
     for (let [type, textsArray] of this._typeSortedTexts) {
-      const textureData = this._texturesData.get(type);
       const typeData = TYPES_DATA.get(type);
-      textureData.texture.bind();
       this.program.uniforms.set("uvOffset", typeData.uvOffset);
-      this.program.uniforms.set("scaleOffset", textureData.scaleOffset);
       this.program.uniforms.set("diffuse", typeData.color);
       
       const mesh = this._meshes.get(type);
@@ -366,8 +359,12 @@ export default class ActionTexts {
       const mesh = this._meshes.get(nameMesh);
       mesh.indices.buffer.bind();
       this.program.attributes.set(mesh.attributes);
+      this.program.uniforms.set("text", nameMesh === "socleoutside" ? 1 : 0);
       
       for (let [type, typeData] of TYPES_DATA) {
+        const textureData = this._texturesData.get(type);
+        textureData.texture.bind();
+        this.program.uniforms.set("scaleOffset", textureData.scaleOffset);
         this.program.uniforms.set("opacity", 1);
         MATRIX4.identity();
         MATRIX4.x = typeData.position;
