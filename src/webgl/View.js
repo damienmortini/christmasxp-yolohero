@@ -8,6 +8,7 @@ import Background from "./Background.js";
 import Loader from "dlib/utils/Loader.js";
 import ActionTexts from "./ActionTexts.js";
 import MainText from "./MainText.js";
+import Ground from "./Ground.js";
 import UI from "./ui/UI.js";
 import ScoreText from "./ScoreText.js";
 
@@ -55,6 +56,12 @@ export default class View {
       player
     });
 
+    this.ground = new Ground({
+      gl: this.gl,
+      player
+    });
+    this.ground.transform.y = -2
+
     this.scoreText = new ScoreText({
       gl: this.gl
     });
@@ -92,6 +99,10 @@ export default class View {
     // });
 
     this.mainText.draw({
+      camera: this.camera
+    });
+
+    this.ground.draw({
       camera: this.camera
     });
 
