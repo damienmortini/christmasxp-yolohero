@@ -10,6 +10,7 @@ import Signal from "dlib/utils/Signal.js";
 import DATA from "./data-snowman.js";
 
 const MUTE = GUI.add({value: false}, "value", {label: "Mute", reload: true}).value;
+const OFFSET_TIME = GUI.add({value: 0}, "value", {label: "Time Offset", reload: true}).value;
 
 let template = document.createElement("template");
 Loader.load("src/player/template.html").then((value) => {
@@ -21,14 +22,19 @@ const START_TIME = [...DATA.slices.values()][0].startTime;
 const ACTIONS = [];
 for (let slice of DATA.slices.values()) {
   for (let [i, data] of slice.data.entries()) {
-    ACTIONS.push({
-      time: slice.startTime + i * 60 / slice.bpm - START_TIME,
-      type: data[0],
-      text: data[1],
-      success: false
-    });
+    const types = data[0] instanceof Array ? data[0] : [data[0]]
+    for (let j = 0; j < types.length; j++) {
+      ACTIONS.push({
+        time: slice.startTime + i * 60 / slice.bpm - START_TIME,
+        type: types[j],
+        text: j === 0 ? (data[1] || "") : "",
+        success: false
+      });
+    }
   }
 }
+
+console.log(ACTIONS);
 
 Loader.onLoad.then(() => {
   window.customElements.define("christmasxp-yolohero-player", class extends LoopElement {
@@ -58,6 +64,7 @@ Loader.onLoad.then(() => {
           const widget = SC.Widget(this.querySelector("iframe"));
           widget.bind(SC.Widget.Events.READY, () => {
             widget.setVolume(MUTE ? 0 : 100);
+            widget.seekTo(OFFSET_TIME * 1000);
             widget.play();
           });
           widget.bind(SC.Widget.Events.PLAY_PROGRESS, (e) => {
@@ -130,11 +137,10 @@ Loader.onLoad.then(() => {
 
       for (let i = 0; i < this.actions.length; i++) {
         const action = this.actions[i];
-        if(action.time > this.action.time && action.time < this.currentTime && this.action !== action) {
+        if(action.time >= this.action.time && action.time < this.currentTime && this.action !== action) {
           this.action = action;
           this.onActionChange.dispatch({
-            action: this.action,
-            nextAction: this.actions[i + 1]
+            action: this.action
           });
         }
       }

@@ -58,7 +58,7 @@ export default class MainText extends GLText {
         _scale: 0
       }, {
         _opacity: 1,
-        _scale: 1000 / this._canvas.width,
+        _scale: Math.min(1, 1000 / this._canvas.width) * (data[1] || 1),
         ease: Back.easeOut
       })
       TweenLite.to(this, .2, {

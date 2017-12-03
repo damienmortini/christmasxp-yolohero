@@ -62,6 +62,10 @@ export default class View {
       gl: this.gl,
       webcam: this.webcam
     });
+    this.background.transform.scale([window.innerWidth * .079, window.innerHeight * .037, 30]);
+    this.background.transform.rotateX(.1);
+    this.background.transform.y = -3.1;
+    this.background.transform.z = 3.1;
 
     this.actionTexts = new ActionTexts({
       gl: this.gl,
@@ -129,9 +133,11 @@ export default class View {
       this.camera.transform.setPosition(VECTOR3.scale(10));
     }
     
-    this.gl.disable(this.gl.DEPTH_TEST);
-    this.background.draw();
     this.gl.enable(this.gl.DEPTH_TEST);
+
+    this.background.draw({
+      camera: this.camera
+    });
 
     this.actionTexts.draw({
       camera: this.camera

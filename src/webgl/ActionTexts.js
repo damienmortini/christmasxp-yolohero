@@ -93,6 +93,7 @@ export default class ActionTexts {
           uniform Camera camera;
           uniform vec4 scaleOffset;
           uniform vec2 uvOffset;
+          uniform float success;
   
           in vec3 position;
           in vec3 normal;
@@ -106,6 +107,7 @@ export default class ActionTexts {
   
           void main() {
             vec3 position = position;
+            position.y *= 1. - max(-success, 0.);
             gl_Position = camera.projectionView * transform * vec4(position, 1.);
             vGLPosition = gl_Position;
             vPosition = position;
@@ -134,6 +136,7 @@ export default class ActionTexts {
           uniform float text;
           uniform vec3 diffuse;
           uniform Camera camera;
+          uniform float success;
   
           in vec3 vNormal;
           in vec2 vUv;
@@ -178,11 +181,19 @@ export default class ActionTexts {
             );
 
             // color = mix(vec3(1.), diffuse, pattern.r);
+            color *= min(1., 1. + success);
 
             fragColor.rgb = color;
             // fragColor.rgb += textTexel.rgb * textTexel.a;
             fragColor.a = opacity;
             fragColor.a = 1.;
+
+            float yRatio = vPosition.y / 5.;
+            fragColor.a *= step(yRatio, 1. - success);
+
+            if(fragColor.a <= 0.) {
+              discard;
+            }
           }
         `
       });
@@ -244,6 +255,7 @@ export default class ActionTexts {
         position: typeData.position,
         transform: new Matrix4(),
         opacity: 0,
+        success: 0,
         rotation: typeData.rotation,
         color: typeData.color
       });
@@ -271,12 +283,12 @@ export default class ActionTexts {
       });
     }
 
-    this._typeSortedTexts = new Map();
+    this._typeSortedActionObjects = new Map();
     for (let text of this._actionObjects.values()) {
-      let array = this._typeSortedTexts.get(text.type);
+      let array = this._typeSortedActionObjects.get(text.type);
       if(!array) {
         array = [];
-        this._typeSortedTexts.set(text.type, array);
+        this._typeSortedActionObjects.set(text.type, array);
       }
       array.push(text);
     }
@@ -292,11 +304,13 @@ export default class ActionTexts {
   }
 
   onActionComplete({action}) {
-    const text = this._actionObjects.get(action);
-    if(!text) {
+    const actionObject = this._actionObjects.get(action);
+    if(!actionObject) {
       return;
     }
-    // text.color = hexToRGB(action.success ? "#00ff00" : "#ff0000");
+    TweenLite.to(actionObject, .2, {
+      success: action.success ? 1 : -1
+    });
   }
 
   resize({width, height}) {
@@ -309,22 +323,22 @@ export default class ActionTexts {
     }
 
     for (let action of this.player.actions) {
-      const text = this._actionObjects.get(action);
-      if(!text) {
+      const actionObject = this._actionObjects.get(action);
+      if(!actionObject) {
         continue;
       }
       const progress = (this.player.currentTime - action.time) * 5;
-      text.opacity = Math.max(0, 1. - Math.abs(progress) * (progress < 0 ? .05 : .2));
-      if(!text.opacity) {
+      actionObject.opacity = Math.max(0, 1. - Math.abs(progress) * (progress < 0 ? .05 : .2));
+      if(!actionObject.opacity) {
         continue;
       }
-      text.transform.identity();
-      text.transform.rotateY(text.rotation - progress);
-      text.transform.x = text.position;
-      text.transform.z = progress;
-      text.transform.scale(SCALE);
-      // text.transform.scale(1 + Math.max(0, 1. - Math.abs(progress) * 2));
-      text.transform.multiply(this.transform, text.transform);
+      actionObject.transform.identity();
+      actionObject.transform.rotateY(actionObject.rotation - progress);
+      actionObject.transform.x = actionObject.position;
+      actionObject.transform.z = progress;
+      actionObject.transform.scale(SCALE);
+      // actionObject.transform.scale(1 + Math.max(0, 1. - Math.abs(progress) * 2));
+      actionObject.transform.multiply(this.transform, actionObject.transform);
     }
 
     this.gl.enable(this.gl.BLEND);
@@ -336,7 +350,7 @@ export default class ActionTexts {
       unit: 1
     });
     
-    for (let [type, textsArray] of this._typeSortedTexts) {
+    for (let [type, actionObjectsArray] of this._typeSortedActionObjects) {
       const typeData = TYPES_DATA.get(type);
       this.program.uniforms.set("uvOffset", typeData.uvOffset);
       this.program.uniforms.set("diffuse", typeData.color);
@@ -345,12 +359,13 @@ export default class ActionTexts {
       mesh.indices.buffer.bind();
       this.program.attributes.set(mesh.attributes);
       
-      for (let text of textsArray) {
-        if(!text.opacity) {
+      for (let actionObject of actionObjectsArray) {
+        if(!actionObject.opacity) {
           continue;
         }
-        this.program.uniforms.set("opacity", text.opacity);
-        this.program.uniforms.set("transform", text.transform);
+        this.program.uniforms.set("success", actionObject.success);
+        this.program.uniforms.set("opacity", actionObject.opacity);
+        this.program.uniforms.set("transform", actionObject.transform);
         mesh.draw();
       }
     }
@@ -366,6 +381,7 @@ export default class ActionTexts {
         textureData.texture.bind();
         this.program.uniforms.set("scaleOffset", textureData.scaleOffset);
         this.program.uniforms.set("opacity", 1);
+        this.program.uniforms.set("success", 0);
         MATRIX4.identity();
         MATRIX4.x = typeData.position;
         if(nameMesh === "socleinside") {

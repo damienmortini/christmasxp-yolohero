@@ -137,17 +137,10 @@ export default class Background {
           // color += light2 * .1;
 
           fragColor = vec4(color, 1.);
-          // fragColor = vec4(1., 0., 0., 1.);
+          fragColor = vec4(1., 0., 0., 1.);
         }
       `
     });
-
-    this.program.use();
-    this.program.uniforms.set("colors", [
-      hexToRGB("#f9ef03"),
-      hexToRGB("#f2018c"),
-      hexToRGB("#02aef0"),
-    ]);
   }
 
   draw({camera}) {
@@ -160,8 +153,6 @@ export default class Background {
     this.program.attributes.set(this._mesh.attributes);
     this.program.uniforms.set("projectionView", camera.projectionView);
     this.program.uniforms.set("transform", this.transform);
-    this.program.uniforms.set("resolution", [this.gl.canvas.width, this.gl.canvas.height]);
-    this.program.uniforms.set("motion", this.webcam.motionRatio);
     
     this._mesh.indices.buffer.bind();
     this._mesh.draw();
