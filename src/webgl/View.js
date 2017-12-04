@@ -79,7 +79,8 @@ export default class View {
     this.mainText = new MainText({
       gl: this.gl,
       player,
-      actionsDetector
+      actionsDetector,
+      noiseTexture
     });
     this.mainText.transform.y = 3;
 

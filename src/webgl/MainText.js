@@ -1,6 +1,7 @@
 import TweenLite from "gsap/TweenLite";
 import GLText from "dlib/gl/GLText.js";
 import GLTexture from "dlib/gl/GLTexture.js";
+import NoiseShader from "dlib/shaders/NoiseShader.js";
 import Matrix4 from "dlib/math/Matrix4.js";
 import Vector4 from "dlib/math/Vector4.js";
 
@@ -9,9 +10,8 @@ const SUCCESS_WORDS = [
   "You're a star",
   "Perfect",
   "So good",
-  "YEAH!",
+  "Yeah!!!",
   "Ace!",
-  "It's Chriiiiiistmas!!!",
   "Fantastic!!!",
   "Impressive!",
   "Well done",
@@ -24,14 +24,17 @@ const FAIL_WORDS = [
   "Aie!",
   "Be brave!",
   "Not today",
-  "Big badaboom boom boom...",
+  "Oups!",
+  "Failed!",
+  "Nope!",
 ];
 
 export default class MainText extends GLText {
   constructor({
     gl,
     player,
-    actionsDetector
+    actionsDetector,
+    noiseTexture
   }) {
     super({
       gl,
@@ -48,16 +51,29 @@ export default class MainText extends GLText {
     this._scale = 1;
     this._tweenedScale = 1;
     this._opacity = 1;
+    this._noiseTexture = noiseTexture;
 
     this.program.add({
+      uniforms: [
+        ["noiseTexture", 1]
+      ],
       fragmentShaderChunks: [
         ["start", `
           precision highp float;
 
           uniform float opacity;
+          uniform sampler2D noiseTexture;
+          uniform vec4 scaleOffset;
+
+          ${NoiseShader.random()}
         `],
         ["end", `
+          fragColor.a = smoothstep(.01, 1., fragColor.a);
+          vec4 noise = texture(noiseTexture, random(scaleOffset.x + scaleOffset.y) + vUv * scaleOffset.xy);
+          // fragColor.a *= (-noise.r + opacity * 2.) * 10. ;
+          // fragColor.rgb = (noise.rgb - opacity) * 20.;
           fragColor.a *= opacity;
+          // fragColor.rgb = vec3(1., 0., 0.);
         `]
       ]
     })
@@ -66,8 +82,9 @@ export default class MainText extends GLText {
 
     this.player.onActionChange.add(this.changeAction.bind(this));
     actionsDetector.onActionComplete.add(this.onActionComplete.bind(this));
-  }
 
+  }
+  
   onActionComplete({action}) {
     const worldsArray = action.success ? SUCCESS_WORDS : FAIL_WORDS;
     this.textContent = worldsArray[Math.floor(Math.random() * worldsArray.length)];
@@ -90,19 +107,23 @@ export default class MainText extends GLText {
 
   set textContent(value) {
     super.textContent = value;
+    const scale = Math.min(1, 1000 / this._canvas.width) * (this._scale || 1);
     TweenLite.killTweensOf(this);
     TweenLite.fromTo(this, .2, {
-      _opacity: 0,
       _tweenedScale: 0
     }, {
-      _opacity: 1,
-      _tweenedScale: Math.min(1, 1000 / this._canvas.width) * this._scale,
+      _tweenedScale: scale,
       ease: Back.easeOut
+    })
+    TweenLite.fromTo(this, .2, {
+      _opacity: 0,
+    }, {
+      _opacity: 1
     })
     TweenLite.to(this, .2, {
       _opacity: 0,
       _tweenedScale: 0,
-      delay: 3
+      delay: 2
     })
   }
 
@@ -115,6 +136,9 @@ export default class MainText extends GLText {
     this.gl.blendFunc(this.gl.SRC_ALPHA, this.gl.ONE_MINUS_SRC_ALPHA);
     const scale = this._tweenedScale || .0001;
     this.transform.scale(scale);
+    this._noiseTexture.bind({
+      unit: 1
+    });
     this.program.use();
     this.program.uniforms.set("opacity", this._opacity);
     super.draw({camera});

@@ -46,19 +46,21 @@ Loader.onLoad.then(() => {
         return;
       }
 
-      switch (action.type) {
-        case "motion":
-          this.score += 1;
-          break;
-        case "mouse":
-          this.score += 1;
-          break;
-        case "sound":
-          this.score += 50;
-          break;
-        default:
-          this.score += 10;  
-      }
+      // switch (action.type) {
+      //   case "motion":
+      //     this.score += 1;
+      //     break;
+      //   case "mouse":
+      //     this.score += 1;
+      //     break;
+      //   case "sound":
+      //     this.score += 50;
+      //     break;
+      //   default:
+      //     this.score += 10;  
+      // }
+
+      this.score += 10;
 
       this.webgl.score = this.score;
     }

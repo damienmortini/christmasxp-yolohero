@@ -44,7 +44,7 @@ const TYPES_DATA = new Map([
   ["sound", {
     rotation: 0,
     position: 3,
-    text: "Shout!",
+    text: "Shout/clap",
     uvOffset: [.5, .5],
     color: hexToRGB("#bd0004")
   }]

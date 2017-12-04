@@ -57,8 +57,8 @@ export default class ActionsDetector {
         this._currentActions.add(action);
       }
     }
-    
-    const sound = this._webcam.volume > .2;
+
+    const sound = this._webcam.volume > .4;
     if(sound) {
       this.onAction.dispatch({type: "sound"});
     }
