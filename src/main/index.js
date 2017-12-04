@@ -1,13 +1,16 @@
 import "@webcomponents/custom-elements";
 
 import Loader from "dlib/utils/Loader.js";
+import Sound from "dlib/audio/Sound.js";
+import LoopElement from "dlib/customelements/LoopElement.js";
 
 import "../webgl/index.js";
 import "../player/index.js";
 import "../ui/index.js";
 
 import ActionsDetector from "./ActionsDetector.js";
-import LoopElement from "dlib/customelements/LoopElement.js";
+import Sounds from "./Sounds.js";
+import TweenLite from "gsap/TweenLite";
 
 let template = document.createElement("template");
 Loader.load("src/main/template.html").then((value) => {
@@ -24,17 +27,21 @@ Loader.onLoad.then(() => {
 
       this.score = 0;
 
-      const player = document.querySelector("christmasxp-yolohero-player");
+      this.player = document.querySelector("christmasxp-yolohero-player");
       this.webgl = document.querySelector("christmasxp-yolohero-webgl");
       const ui = document.querySelector("christmasxp-yolohero-ui");
 
       this._actionsDetector = new ActionsDetector({
-        player,
+        player: this.player,
         webcam: this.webgl.webcam
       });
       
       this.webgl.init({
-        player,
+        player: this.player,
+        actionsDetector: this._actionsDetector
+      });
+
+      new Sounds({
         actionsDetector: this._actionsDetector
       });
 
@@ -43,6 +50,14 @@ Loader.onLoad.then(() => {
 
     onActionComplete({action}) {
       if(!action.success) {
+        TweenLite.killTweensOf(this.player);
+        TweenLite.to(this.player, .2, {
+          volume: .3
+        });
+        TweenLite.to(this.player, 1, {
+          volume: 1,
+          delay: 1
+        });
         return;
       }
 

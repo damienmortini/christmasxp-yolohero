@@ -9,7 +9,7 @@ import GUI from "dlib/gui/GUI.js";
 import Signal from "dlib/utils/Signal.js";
 import DATA from "./data-snowman.js";
 
-const MUTE = GUI.add({value: false}, "value", {label: "Mute", reload: true}).value;
+const MUTE = GUI.add({value: false}, "value", {label: "Mute Music", reload: true}).value;
 const OFFSET_TIME = GUI.add({value: 0}, "value", {label: "Time Offset", reload: true}).value;
 
 let template = document.createElement("template");
@@ -58,12 +58,15 @@ Loader.onLoad.then(() => {
 
       if(this.querySelector("#soundcloud-player")) {
         SoundCloudAPI.load().then(() => {
-          this._player = {
-            currentTime: 0
-          };
           const widget = SC.Widget(this.querySelector("iframe"));
+          this._player = {
+            currentTime: 0,
+            set volume(value) {
+              widget.setVolume(value * 100);
+            }
+          };
           widget.bind(SC.Widget.Events.READY, () => {
-            widget.setVolume(MUTE ? 0 : 100);
+            this.volume = MUTE ? 0 : 1;
             widget.seekTo(OFFSET_TIME * 1000);
             widget.play();
           });
@@ -111,6 +114,16 @@ Loader.onLoad.then(() => {
       //   console.log(60 / (this._player.currentTime - this._previousKeyboardBeatTime));
       //   this._previousKeyboardBeatTime = this._player.currentTime;
       // });
+    }
+
+    set volume(value) {
+      value = MUTE ? 0 : value;
+      this._volume = value;
+      this._player.volume = value;
+    }
+
+    get volume() {
+      return this._volume;
     }
 
     get actions() {
