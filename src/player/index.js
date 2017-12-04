@@ -12,11 +12,6 @@ import DATA from "./data-snowman.js";
 const MUTE = GUI.add({value: false}, "value", {label: "Mute Music", reload: true}).value;
 const OFFSET_TIME = GUI.add({value: 0}, "value", {label: "Time Offset", reload: true}).value;
 
-let template = document.createElement("template");
-Loader.load("src/player/template.html").then((value) => {
-  template.innerHTML = value;
-});
-
 const START_TIME = [...DATA.slices.values()][0].startTime;
 
 const ACTIONS = [];
@@ -34,10 +29,16 @@ for (let slice of DATA.slices.values()) {
   }
 }
 
-console.log(ACTIONS);
-
-Loader.onLoad.then(() => {
+Loader.load("src/player/template.html").then((templateHTML) => {
+  let template = document.createElement("template");
+  template.innerHTML = templateHTML;
   window.customElements.define("christmasxp-yolohero-player", class extends LoopElement {
+    constructor() {
+      super({
+        autoplay: false
+      });
+    }
+
     connectedCallback() {
       super.connectedCallback();
 
@@ -56,64 +57,70 @@ Loader.onLoad.then(() => {
       this._currentSliceStartTime = 0;
       this._currentSlice = null;
 
-      if(this.querySelector("#soundcloud-player")) {
-        SoundCloudAPI.load().then(() => {
-          const widget = SC.Widget(this.querySelector("iframe"));
-          this._player = {
-            currentTime: 0,
-            set volume(value) {
-              widget.setVolume(value * 100);
-            }
-          };
-          widget.bind(SC.Widget.Events.READY, () => {
-            this.volume = MUTE ? 0 : 1;
-            widget.seekTo(OFFSET_TIME * 1000);
-            widget.play();
-          });
-          widget.bind(SC.Widget.Events.PLAY_PROGRESS, (e) => {
-            this._player.currentTime += (e.currentPosition * .001 - this._player.currentTime) * .2;
-          });
-        });
-      }
-
-      if(this.querySelector("#youtube-player")) {
-        YouTubeAPI.load().then(() => {
-          const youtubePlayer = new YT.Player("youtube-player", {
-            height: "390",
-            width: "640",
-            videoId: "B-NckB3CQ9o",
-            // videoId: "I-s4kSMjmhY",
-            // videoId: "BFNZxrBFnpg",
-            playerVars: {
-              autoplay: 1,
-              // controls: 0,
-              start: Math.floor(START_TIME)
-            },
-            events: {
-              onReady: (e) => {
-                if(MUTE) {
-                  youtubePlayer.mute();
-                }
-                youtubePlayer.playVideo();
-              },
-              onStateChange: (e) => {
-
-              }
-            }
-          });
-          this._player = {
-            get currentTime() {
-              return youtubePlayer.getCurrentTime ? youtubePlayer.getCurrentTime() : 0;
-            }
-          }
-        });
-      }
 
       // this._previousKeyboardBeatTime = 0;
       // Keyboard.addEventListener("keydown", () => {
       //   console.log(60 / (this._player.currentTime - this._previousKeyboardBeatTime));
       //   this._previousKeyboardBeatTime = this._player.currentTime;
       // });
+    }
+
+    load() {
+      return new Promise((resolve) => {
+        if(this.querySelector("#soundcloud-player")) {
+          SoundCloudAPI.load().then(() => {
+            const widget = SC.Widget(this.querySelector("iframe"));
+            this._player = {
+              currentTime: 0,
+              set volume(value) {
+                widget.setVolume(value * 100);
+              },
+              play() {
+                widget.play();
+              }
+            };
+            widget.bind(SC.Widget.Events.READY, () => {
+              this.volume = MUTE ? 0 : 1;
+              widget.seekTo(OFFSET_TIME * 1000);
+            });
+            widget.bind(SC.Widget.Events.PLAY_PROGRESS, (e) => {
+              this._player.currentTime += (e.currentPosition * .001 - this._player.currentTime) * .2;
+            });
+            resolve();
+          });
+        } else if(this.querySelector("#youtube-player")) {
+          YouTubeAPI.load().then(() => {
+            const youtubePlayer = new YT.Player("youtube-player", {
+              height: "390",
+              width: "640",
+              videoId: "B-NckB3CQ9o",
+              // videoId: "I-s4kSMjmhY",
+              // videoId: "BFNZxrBFnpg",
+              playerVars: {
+                autoplay: 1,
+                // controls: 0,
+                start: Math.floor(START_TIME)
+              },
+              events: {
+                onReady: (e) => {
+                  if(MUTE) {
+                    youtubePlayer.mute();
+                  }
+                  resolve();
+                }
+              }
+            });
+            this._player = {
+              get currentTime() {
+                return youtubePlayer.getCurrentTime ? youtubePlayer.getCurrentTime() : 0;
+              },
+              play() {
+                youtubePlayer.playVideo();
+              }
+            }
+          });
+        }
+      });
     }
 
     set volume(value) {
@@ -128,6 +135,11 @@ Loader.onLoad.then(() => {
 
     get actions() {
       return ACTIONS;
+    }
+
+    play() {
+      super.play();
+      this._player.play();
     }
 
     update() {

@@ -4,20 +4,18 @@ import Loader from "dlib/utils/Loader.js";
 import Sound from "dlib/audio/Sound.js";
 import LoopElement from "dlib/customelements/LoopElement.js";
 
+import "../intro/index.js";
+import "../outro/index.js";
 import "../webgl/index.js";
 import "../player/index.js";
-import "../ui/index.js";
 
 import ActionsDetector from "./ActionsDetector.js";
 import Sounds from "./Sounds.js";
-import TweenLite from "gsap/TweenLite";
+import "gsap/TweenLite";
 
-let template = document.createElement("template");
-Loader.load("src/main/template.html").then((value) => {
-  template.innerHTML = value;
-});
-
-Loader.onLoad.then(() => {
+Loader.load(["src/main/template.html", "src/Shrikhand-Regular.ttf"]).then(([templateHTML]) => {
+  let template = document.createElement("template");
+  template.innerHTML = templateHTML;
   window.customElements.define("christmasxp-yolohero-main", class extends LoopElement {
     connectedCallback() {
       super.connectedCallback();
@@ -29,13 +27,13 @@ Loader.onLoad.then(() => {
 
       this.player = document.querySelector("christmasxp-yolohero-player");
       this.webgl = document.querySelector("christmasxp-yolohero-webgl");
-      const ui = document.querySelector("christmasxp-yolohero-ui");
+      this.intro = document.querySelector("christmasxp-yolohero-intro");
 
       this._actionsDetector = new ActionsDetector({
         player: this.player,
         webcam: this.webgl.webcam
       });
-      
+
       this.webgl.init({
         player: this.player,
         actionsDetector: this._actionsDetector
@@ -46,6 +44,21 @@ Loader.onLoad.then(() => {
       });
 
       this._actionsDetector.onActionComplete.add(this.onActionComplete.bind(this));
+
+      Promise.all([this.player.load(), this.webgl.load()])
+        .then(() => {
+          this.intro.loading = false;
+        });
+      
+      // let playerLoaded = false;
+      // this.player.addEventListener("load", () => {
+      //   playerLoaded = true;
+      //   this.intro.loading = playerLoaded && webgl;
+      // });
+
+      this.intro.addEventListener("close", () => {
+        this.player.play();
+      });
     }
 
     onActionComplete({action}) {

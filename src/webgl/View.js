@@ -10,15 +10,12 @@ import Loader from "dlib/utils/Loader.js";
 import ActionTexts from "./ActionTexts.js";
 import MainText from "./MainText.js";
 import Ground from "./Ground.js";
-import UI from "./ui/UI.js";
 import ScoreText from "./ScoreText.js";
 import GLTexture from "dlib/gl/GLTexture.js";
 import Vector2 from "dlib/math/Vector2.js";
 import Quaternion from "dlib/math/Quaternion.js";
 import Vector3 from "dlib/math/Vector3.js";
 import GUI from "dlib/gui/GUI.js";
-
-Loader.load("src/Shrikhand-Regular.ttf");
 
 const CAMERA_CONTROLLER = GUI.add({value: false}, "value", {label: "Camera Controller", reload: true}).value;
 
@@ -47,13 +44,13 @@ export default class View {
 
     this.camera = new Camera();
 
-    const noiseTexture = new GLTexture({
+    this._noiseTexture = new GLTexture({
       gl: this.gl,
       minFilter: this.gl.LINEAR,
     });
     Loader.load("src/webgl/noise.png").then((image) => {
-      noiseTexture.data = image;
-      noiseTexture.generateMipmap();
+      this._noiseTexture.data = image;
+      this._noiseTexture.generateMipmap();
     });
 
     this.cameraController = new TrackballController({
@@ -84,19 +81,14 @@ export default class View {
       gl: this.gl,
       player,
       actionsDetector,
-      noiseTexture
+      noiseTexture: this._noiseTexture
     });
     this.mainText.transform.y = 3;
-
-    this.ui = new UI({
-      gl: this.gl,
-      player
-    });
 
     this.ground = new Ground({
       gl: this.gl,
       webcam: this.webcam,
-      noiseTexture,
+      noiseTexture: this._noiseTexture,
       player
     });
     this.ground.transform.rotateX(.1);
@@ -112,7 +104,6 @@ export default class View {
   resize({width, height}) {
     this.camera.aspectRatio = width / height;
     this.actionTexts.resize({width, height});
-    this.ui.resize({width, height});
     this.update();
   }
 
@@ -121,6 +112,10 @@ export default class View {
   }
  
   update() {
+    if(!this._noiseTexture.data) {
+      return;
+    }
+
     this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
     this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
 
@@ -147,10 +142,6 @@ export default class View {
     this.actionTexts.draw({
       camera: this.camera
     });
-
-    // this.ui.draw({
-    //   camera: this.camera
-    // });
 
     this.mainText.draw({
       camera: this.camera

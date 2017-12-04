@@ -1,4 +1,4 @@
-import TweenLite from "gsap/TweenLite";
+import "gsap/TweenLite.js";
 import GLText from "dlib/gl/GLText.js";
 import GLTexture from "dlib/gl/GLTexture.js";
 import NoiseShader from "dlib/shaders/NoiseShader.js";
@@ -45,7 +45,7 @@ export default class MainText extends GLText {
       font: `${50 * window.devicePixelRatio}px Shrikhand-Regular`,
       paddingPercentageWidth: .2,
       paddingPercentageHeight: .2,
-      offsetYPercentage: .2
+      offsetYPercentage: window.chrome ? .2 : 0
     });
 
     this._scale = 1;

@@ -1,0 +1,19 @@
+christmasxp-yolohero-intro {
+  display: flex;
+  position: relative;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background: white;
+  transition-duration: .4s;
+  transition-property: opacity, visibility;
+}
+
+christmasxp-yolohero-intro.hide {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.warning {
+  color: #ffa575;
+}

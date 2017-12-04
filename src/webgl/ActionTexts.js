@@ -12,7 +12,7 @@ import RayShader from "dlib/shaders/RayShader.js";
 import PBRShader from "dlib/shaders/PBRShader.js";
 import CameraShader from "dlib/shaders/CameraShader.js";
 import NoiseShader from "dlib/shaders/NoiseShader.js";
-import TweenLite from "gsap/TweenLite";
+import "gsap/TweenLite";
 
 let DEFAULT_TEXT;
 
@@ -44,7 +44,7 @@ const TYPES_DATA = new Map([
   ["sound", {
     rotation: 0,
     position: 3,
-    text: "Shout/clap",
+    text: "Shout/clap!",
     uvOffset: [.5, .5],
     color: hexToRGB("#bd0004")
   }]
@@ -208,7 +208,7 @@ export default class ActionTexts {
         textContent: "",
         fillStyle: "white",
         font: "40px Shrikhand-Regular",
-        offsetYPercentage: .2,
+        offsetYPercentage: window.chrome ? .2 : -.2,
         paddingPercentageWidth: .2,
         paddingPercentageHeight: .2
       });

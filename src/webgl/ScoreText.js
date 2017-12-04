@@ -17,7 +17,7 @@ export default class ScoreText extends GLText {
       font: `${50 * window.devicePixelRatio}px Shrikhand-Regular`,
       paddingPercentageWidth: .2,
       paddingPercentageHeight: .2,
-      offsetYPercentage: .25
+      offsetYPercentage: window.chrome ? .2 : 0
     });
 
     this._scale = 1;
