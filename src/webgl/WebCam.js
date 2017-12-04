@@ -8,7 +8,7 @@ import { hexToRGB } from "dlib/math/Color.js";
 import { COLORS } from "./Colors.js";
 
 const FRAME_BUFFER_SIZE = 512;
-const BLUR_PASSES = 1;
+const BLUR_PASSES = 2;
 
 export default class WebCam {
   constructor({gl}) {

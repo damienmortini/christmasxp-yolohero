@@ -71,7 +71,8 @@ export default class View {
     this.actionTexts = new ActionTexts({
       gl: this.gl,
       player,
-      actionsDetector
+      actionsDetector,
+      webcam
     });
     this.actionTexts.transform.rotateX(.1);
     this.actionTexts.transform.y = -2.8;

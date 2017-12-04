@@ -55,12 +55,14 @@ export default class ActionTexts {
   constructor({
     gl,
     player,
-    actionsDetector
+    actionsDetector,
+    webcam
   }) {
     this.gl = gl;
     this.player = player;
     this.actionsDetector = actionsDetector;
     this.transform = new Matrix4();
+    this._webcam = webcam;
 
     Promise.all([
       GLTFLoader.load("src/webgl/button/buttons.gltf"), 
@@ -121,8 +123,7 @@ export default class ActionTexts {
             vUv.y *= .2;
             vUv *= 4.;
             vUv = vUv * .5 + .5;
-            vNormal = mat3(transform) * normal;
-            vNormal = normalize(vNormal);
+            vNormal = normalize(mat3(transform) * normal);
 
             // vUv2 = fract(uv * .5 + uvOffset) * 20.;
             vUv2 = uv;
@@ -135,6 +136,7 @@ export default class ActionTexts {
 
           uniform sampler2D textTexture;
           uniform sampler2D patternTexture;
+          uniform sampler2D envMap;
           uniform float opacity;
           uniform float text;
           uniform vec3 typeColor;
@@ -158,7 +160,8 @@ export default class ActionTexts {
           ${PBRShader.computeGGXLighting()}
           ${PBRShader.computePBRLighting({
             pbrReflectionFromRay: `
-              vec3 color = texture(patternTexture, ray.direction.xy * .1).rgb;
+              vec3 color = texture(envMap, ray.direction.xz).rgb;
+              color += max(0., pow(ray.direction.y, .1));
               return color;
             `
           })}
@@ -177,7 +180,7 @@ export default class ActionTexts {
             textTexel.a *= text;
             pattern *= 1. - text;
 
-            vec3 diffuse = mix(typeColor, vec3(1.), pattern);
+            vec3 diffuse = mix(typeColor, vec3(1.), (1. - pattern) * (1. - text));
 
             // color = diffuse;
 
@@ -186,7 +189,7 @@ export default class ActionTexts {
               Light(vec3(1.), vec3(0.), vec3(-1.), .9),
               vPosition,
               vNormal,
-              PhysicallyBasedMaterial(diffuse, 0., pattern, 1.)
+              PhysicallyBasedMaterial(diffuse, 0., 0., 1.)
               // PhysicallyBasedMaterial(diffuse * (1. - textTexel.a), pattern * .2, (1. - pattern), 1. - textTexel.a * .8)
               // PhysicallyBasedMaterial(diffuse * (1. - textTexel.a), 0., 1., 0.)
             );
@@ -360,6 +363,10 @@ export default class ActionTexts {
     this._patternTexture.bind({
       unit: 1
     });
+    this._webcam.envMap.bind({
+      unit: 2
+    });
+    this.program.uniforms.set("envMap", 2);
     
     for (let [type, actionObjectsArray] of this._typeSortedActionObjects) {
       const typeData = TYPES_DATA.get(type);
