@@ -77,8 +77,15 @@ Loader.load("src/player/template.html").then((templateHTML) => {
               },
               play() {
                 widget.play();
+              },
+              pause() {
+                widget.pause();
               }
             };
+            widget.bind(SC.Widget.Events.FINISH, () => {
+              this.pause();
+              this.dispatchEvent(new Event("ended"));
+            });
             widget.bind(SC.Widget.Events.READY, () => {
               this.volume = MUTE ? 0 : 1;
               widget.seekTo(OFFSET_TIME * 1000);
@@ -141,6 +148,11 @@ Loader.load("src/player/template.html").then((templateHTML) => {
     play() {
       super.play();
       this._player.play();
+    }
+
+    pause() {
+      super.pause();
+      this._player.pause();
     }
 
     update() {

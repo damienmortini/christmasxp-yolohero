@@ -13,7 +13,6 @@ christmasxp-yolohero-main {
   position: relative;
 }
 
-christmasxp-yolohero-main h1,
 christmasxp-yolohero-main h2,
 christmasxp-yolohero-main button {
   font-family: "Shrikhand-Regular";
@@ -24,8 +23,8 @@ christmasxp-yolohero-main button {
   padding: .1em .5em;
 }
 
-christmasxp-yolohero-main h1 {
-  font-size: 120px;
+christmasxp-yolohero-main h2 {
+  font-size: 50px;
 }
 
 christmasxp-yolohero-main p,

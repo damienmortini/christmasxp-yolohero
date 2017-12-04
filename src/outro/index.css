@@ -1,4 +1,42 @@
 christmasxp-yolohero-outro {
-  display: block;
+  display: flex;
   position: relative;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  background: rgba(255, 255, 255, .8);
+  transition-duration: .4s;
+  transition-property: opacity, visibility;
+  text-align: center;
+}
+
+.content {
+  max-width: 500px;
+}
+
+christmasxp-yolohero-outro h2 {
+  font-size: 30px;
+}
+
+christmasxp-yolohero-outro textarea {
+  color: #0d2fe9;
+  border: 1px solid #e7fc73;
+  text-align: center;
+  resize: none;
+  width: 100%;
+  box-sizing: border-box;
+  padding: 1em;
+}
+
+christmasxp-yolohero-outro textarea::selection {
+  background: #ff22e0;
+}
+
+christmasxp-yolohero-outro textarea:focus {
+  outline:none;
+}
+
+christmasxp-yolohero-outro.hide {
+  opacity: 0;
+  visibility: hidden;
 }

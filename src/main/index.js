@@ -14,6 +14,8 @@ import Sounds from "./Sounds.js";
 import "gsap/TweenLite";
 import GUI from "dlib/gui/GUI.js";
 
+GUI.visible = /\bgui\b/.test(window.location.search);
+
 Loader.load(["src/main/template.html", "src/Shrikhand-Regular.ttf"]).then(([templateHTML]) => {
   let template = document.createElement("template");
   template.innerHTML = templateHTML;
@@ -27,6 +29,7 @@ Loader.load(["src/main/template.html", "src/Shrikhand-Regular.ttf"]).then(([temp
       this.score = 0;
 
       this.intro = document.querySelector("christmasxp-yolohero-intro");
+      this.outro = document.querySelector("christmasxp-yolohero-outro");
 
       this.player = document.querySelector("christmasxp-yolohero-player");
       
@@ -47,6 +50,7 @@ Loader.load(["src/main/template.html", "src/Shrikhand-Regular.ttf"]).then(([temp
       .then(() => {
         this._actionsDetector.webcam = this.webgl.webcam;
         this.intro.loading = false;
+        this.player.addEventListener("ended", this.onPlayerEnded.bind(this))
       });
 
       this.intro.addEventListener("close", () => {
@@ -59,6 +63,11 @@ Loader.load(["src/main/template.html", "src/Shrikhand-Regular.ttf"]).then(([temp
           });
         });
       });
+    }
+
+    onPlayerEnded() {
+      this.outro.score = this.score;
+      this.outro.visible = true;
     }
 
     onActionComplete({action}) {
