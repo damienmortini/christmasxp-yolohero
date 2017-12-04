@@ -13,7 +13,7 @@ export default class ScoreText extends GLText {
       textScale: 1 / window.devicePixelRatio,
       textAlign: "center",
       textContent: "0",
-      fillStyle: "white",
+      // fillStyle: "white",
       font: `${50 * window.devicePixelRatio}px Shrikhand-Regular`,
       paddingPercentageWidth: .2,
       paddingPercentageHeight: .2,

@@ -78,7 +78,8 @@ export default class View {
     
     this.mainText = new MainText({
       gl: this.gl,
-      player
+      player,
+      actionsDetector
     });
     this.mainText.transform.y = 3;
 
@@ -94,8 +95,8 @@ export default class View {
       player
     });
     this.ground.transform.rotateX(.1);
-    this.ground.transform.y = -3;
-    this.ground.transform.z = 3;
+    this.ground.transform.y = -2.8;
+    this.ground.transform.z = 2.2;
 
     this.scoreText = new ScoreText({
       gl: this.gl

@@ -77,7 +77,7 @@ export default class Ground {
         out vec4 fragColor;
 
         void main() {
-          vec3 color = vec3(1.);
+          vec3 color = vec3(0.);
           float opacity = 1.;
           float displaced = vUv.x;
           vec4 noise = texture(noiseTexture, vec2(vUv.x, vUv.y * 4. + time * .3) * .2);

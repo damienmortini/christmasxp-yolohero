@@ -48,11 +48,12 @@ export default class Background {
         in vec2 uv;
 
         out vec2 vPosition;
+        out vec3 vNormal;
         out vec2 vUv;
 
         void main() {
           gl_Position = projectionView * transform * vec4(position, 1.);
-          normal;
+          vNormal = normalize(mat3(transform) * normal);
           vPosition = position.xy;
           vUv = uv;
         }
@@ -68,6 +69,7 @@ export default class Background {
 
         in vec2 vUv;
         in vec2 vPosition;
+        in vec3 vNormal;
 
         out vec4 fragColor;
 
@@ -79,10 +81,16 @@ export default class Background {
         ${PBRShader.computeGGXLighting()}
         ${PBRShader.computePBRLighting({
           pbrReflectionFromRay: `
-            vec3 color = texture(webcamTexture, ray.direction.xy * 2.).rgb;
-            float grey = (color.r + color.g + color.b) / 3.;
-            color = mix(colors[0], colors[1], smoothstep(0., .33, grey));
-            color = mix(color, colors[2], smoothstep(.33, .66, grey));
+            vec3 webcamTexel = texture(webcamTexture, ray.direction.xy * 2.).rgb;
+            float grey = (webcamTexel.r + webcamTexel.g + webcamTexel.b) / 3.;
+
+            vec3 rainbow = mix(colors[0], colors[1], smoothstep(0., .33, grey));
+            rainbow = mix(rainbow, colors[2], smoothstep(.33, .66, grey));
+
+            vec3 color = .95 + vec3(grey) * .05;
+
+            color = mix(color, rainbow, motion);
+
             // return .8 + vec3(step(.5, grey)) * .2;
             return color;
           `
@@ -114,14 +122,25 @@ export default class Background {
           // fragColor.rgb = mix(fragColor.rgb, colors[1], step(.9, grey));
           // fragColor.rgb += .5 * motion;
 
+          float roughness = pow(vNormal.y, 10.);
+
           vec4 bump = bumpFromDepth(webcamTexture, vUv, resolution * .01, .1 + motion * .2);
+          bump = mix(bump, vec4(vNormal, 0.), roughness);
+
+          vec3 normal = normalize(vNormal + bump.xyz);
+
+          float black = smoothstep(.01, .015, abs(fract((vUv.x + bump.x * bump.w * .1) * 58.) * 2. - 1.));
+          black *= smoothstep(.02, .03, abs(fract((vUv.y + bump.y * bump.w * .1) * 58.) * 2. - 1.));
+
+          vec3 diffuse = vec3(1.);
+          // diffuse *= black;
 
           vec3 color = computePBRLighting(
             Ray(vec3(0., 0., 1.), normalize(vec3(vPosition, -1.))), 
             Light(vec3(1.), vec3(0.), vec3(-1.), 1.),
             vec3(vPosition, 0.),
             bump.xyz,
-            PhysicallyBasedMaterial(colors[2], 0., .1, 2.)
+            PhysicallyBasedMaterial(diffuse, 0., roughness + (1. - diffuse.r), diffuse.r)
           );
 
           // vec3 color = colors[0];

@@ -53,7 +53,7 @@ export default class ActionsDetector {
 
   update() {
     for (let action of this._actions) {
-      if(this._player.bpm && Math.abs(action.time - this._player.currentTime) < 60 * .5 / this._player.bpm) {
+      if(action.type && this._player.bpm && Math.abs(action.time - this._player.currentTime) < 60 * .5 / this._player.bpm) {
         this._currentActions.add(action);
       }
     }

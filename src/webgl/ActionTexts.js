@@ -170,14 +170,15 @@ export default class ActionTexts {
             vec4 pattern = texture(patternTexture, vUv2 );
 
             textTexel.a *= text;
+            pattern.r *= 1. - text;
 
             color += computePBRLighting(
               ray, 
-              Light(vec3(1.), vec3(0.), vec3(-1.), 1.),
+              Light(vec3(1.), vec3(0.), vec3(-1.), .9),
               vPosition,
               vNormal,
-              // PhysicallyBasedMaterial(diffuse, pattern.r, (1. - pattern.r), 1.)
-              PhysicallyBasedMaterial(diffuse, textTexel.a * .4, 1. - textTexel.a, 1.)
+              PhysicallyBasedMaterial(diffuse * (1. - textTexel.a), pattern.r * .2, (1. - pattern.r), 1. - textTexel.a * .8)
+              // PhysicallyBasedMaterial(diffuse * (1. - textTexel.a), 0., 1., 1. - textTexel.a * .8)
             );
 
             // color = mix(vec3(1.), diffuse, pattern.r);
