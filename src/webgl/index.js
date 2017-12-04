@@ -13,7 +13,8 @@ window.customElements.define("christmasxp-yolohero-webgl", class extends LoopEle
     this.canvas = document.createElement("canvas");
     this.appendChild(this.canvas);
 
-    this._actionsDetector = false;
+    this.player = null;
+    this.actionsDetector = null;
 
     this.canvas = this.querySelector("canvas");
 
@@ -28,24 +29,15 @@ window.customElements.define("christmasxp-yolohero-webgl", class extends LoopEle
     window.addEventListener("resize", this._resizeBinded = this.resize.bind(this));
   }
 
-  init({
-    player,
-    actionsDetector
-  }) {
+  load() {
     this.view = new View({
       gl: this.gl,
       webcam: this.webcam,
-      player,
-      actionsDetector
+      player: this.player,
+      actionsDetector: this.actionsDetector
     });
-
     this.resize();
-  }
-
-  load() {
-    return new Promise((resolve) => {
-      resolve();
-    });
+    return Loader.onLoad;
   }
 
   set score(value) {

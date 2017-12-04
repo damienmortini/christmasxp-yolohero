@@ -25,36 +25,28 @@ Loader.load(["src/main/template.html", "src/Shrikhand-Regular.ttf"]).then(([temp
 
       this.score = 0;
 
-      this.player = document.querySelector("christmasxp-yolohero-player");
-      this.webgl = document.querySelector("christmasxp-yolohero-webgl");
       this.intro = document.querySelector("christmasxp-yolohero-intro");
 
+      this.player = document.querySelector("christmasxp-yolohero-player");
+      
       this._actionsDetector = new ActionsDetector({
-        player: this.player,
-        webcam: this.webgl.webcam
+        player: this.player
       });
-
-      this.webgl.init({
-        player: this.player,
-        actionsDetector: this._actionsDetector
-      });
+      this._actionsDetector.onActionComplete.add(this.onActionComplete.bind(this));
+      
+      this.webgl = document.querySelector("christmasxp-yolohero-webgl");
+      this.webgl.player = this.player;
+      this.webgl.actionsDetector = this._actionsDetector;
 
       new Sounds({
         actionsDetector: this._actionsDetector
       });
 
-      this._actionsDetector.onActionComplete.add(this.onActionComplete.bind(this));
-
       Promise.all([this.player.load(), this.webgl.load()])
       .then(() => {
+        this._actionsDetector.webcam = this.webgl.webcam;
         this.intro.loading = false;
       });
-      
-      // let playerLoaded = false;
-      // this.player.addEventListener("load", () => {
-      //   playerLoaded = true;
-      //   this.intro.loading = playerLoaded && webgl;
-      // });
 
       this.intro.addEventListener("close", () => {
         this.player.play();

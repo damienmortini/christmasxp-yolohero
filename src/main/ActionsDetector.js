@@ -5,10 +5,9 @@ import Pointer from "dlib/input/Pointer.js";
 export default class ActionsDetector {
   constructor({
     player,
-    webcam
   } = {}) {
+    this.webcam = null;
     this._player = player;
-    this._webcam = webcam;
     this._pointer = Pointer.get();
 
     this._actions = new Set(player.actions);
@@ -58,14 +57,19 @@ export default class ActionsDetector {
       }
     }
 
-    const sound = this._webcam.volume > .4;
-    if(sound) {
-      this.onAction.dispatch({type: "sound"});
-    }
-    
-    const motion = this._webcam.motionRatio > 1;
-    if(motion) {
-      this.onAction.dispatch({type: "motion"});
+    let sound = false;
+    let motion = false;
+
+    if(this.webcam) {
+      sound = this.webcam.volume > .4;
+      if(sound) {
+        this.onAction.dispatch({type: "sound"});
+      }
+      
+      motion = this.webcam.motionRatio > 1;
+      if(motion) {
+        this.onAction.dispatch({type: "motion"});
+      }
     }
     
     const pointerMove = this._pointer.velocity.x && this._pointer.velocity.y;

@@ -11148,28 +11148,39 @@ $__System.register('a', ['b', 'c', 'd'], function (_export, _context) {
           this._background = background || this.hasAttribute("background");
 
           this.paused = true;
+          this._pausedByBlur = true;
 
           this._updateBinded = this.update.bind(this);
         }
 
         connectedCallback() {
           if (!this._background) {
-            window.addEventListener("blur", this._pauseBinded = this.pause.bind(this));
-            window.addEventListener("focus", this._playBinded = this.play.bind(this));
+            window.addEventListener("blur", this._onBlur = () => {
+              this._pausedByBlur = !this.paused;
+              this.pause();
+            });
+            window.addEventListener("focus", this._onFocus = () => {
+              if (this._pausedByBlur) {
+                this.play();
+              }
+            });
           }
           if (document.hasFocus() && this._autoplay) {
             this.play();
+          } else {
+            this._pausedByBlur = this._autoplay;
           }
         }
 
         disconnectedCallback() {
           this.pause();
-          window.removeEventListener("blur", this._pauseBinded);
-          window.removeEventListener("focus", this._playBinded);
+          window.removeEventListener("blur", this._onBlur);
+          window.removeEventListener("focus", this._onFocus);
         }
 
         play() {
           this.paused = false;
+          this._pausedByBlur = false;
           Ticker$1.add(this._updateBinded);
           this.dispatchEvent(new Event("playing"));
         }
@@ -19930,7 +19941,8 @@ $__System.register('a', ['b', 'c', 'd'], function (_export, _context) {
           this.canvas = document.createElement("canvas");
           this.appendChild(this.canvas);
 
-          this._actionsDetector = false;
+          this.player = null;
+          this.actionsDetector = null;
 
           this.canvas = this.querySelector("canvas");
 
@@ -19945,24 +19957,15 @@ $__System.register('a', ['b', 'c', 'd'], function (_export, _context) {
           window.addEventListener("resize", this._resizeBinded = this.resize.bind(this));
         }
 
-        init({
-          player,
-          actionsDetector
-        }) {
+        load() {
           this.view = new View({
             gl: this.gl,
             webcam: this.webcam,
-            player,
-            actionsDetector
+            player: this.player,
+            actionsDetector: this.actionsDetector
           });
-
           this.resize();
-        }
-
-        load() {
-          return new Promise(resolve => {
-            resolve();
-          });
+          return Loader.onLoad;
         }
 
         set score(value) {
@@ -20209,11 +20212,10 @@ $__System.register('a', ['b', 'c', 'd'], function (_export, _context) {
 
       class ActionsDetector {
         constructor({
-          player,
-          webcam
+          player
         } = {}) {
+          this.webcam = null;
           this._player = player;
-          this._webcam = webcam;
           this._pointer = Pointer.get();
 
           this._actions = new Set(player.actions);
@@ -20263,14 +20265,19 @@ $__System.register('a', ['b', 'c', 'd'], function (_export, _context) {
             }
           }
 
-          const sound = this._webcam.volume > .4;
-          if (sound) {
-            this.onAction.dispatch({ type: "sound" });
-          }
+          let sound = false;
+          let motion = false;
 
-          const motion = this._webcam.motionRatio > 1;
-          if (motion) {
-            this.onAction.dispatch({ type: "motion" });
+          if (this.webcam) {
+            sound = this.webcam.volume > .4;
+            if (sound) {
+              this.onAction.dispatch({ type: "sound" });
+            }
+
+            motion = this.webcam.motionRatio > 1;
+            if (motion) {
+              this.onAction.dispatch({ type: "motion" });
+            }
           }
 
           const pointerMove = this._pointer.velocity.x && this._pointer.velocity.y;
@@ -20350,38 +20357,35 @@ $__System.register('a', ['b', 'c', 'd'], function (_export, _context) {
 
             this.score = 0;
 
-            this.player = document.querySelector("christmasxp-yolohero-player");
-            this.webgl = document.querySelector("christmasxp-yolohero-webgl");
             this.intro = document.querySelector("christmasxp-yolohero-intro");
 
-            this._actionsDetector = new ActionsDetector({
-              player: this.player,
-              webcam: this.webgl.webcam
-            });
+            this.player = document.querySelector("christmasxp-yolohero-player");
 
-            this.webgl.init({
-              player: this.player,
-              actionsDetector: this._actionsDetector
+            this._actionsDetector = new ActionsDetector({
+              player: this.player
             });
+            this._actionsDetector.onActionComplete.add(this.onActionComplete.bind(this));
+
+            this.webgl = document.querySelector("christmasxp-yolohero-webgl");
+            this.webgl.player = this.player;
+            this.webgl.actionsDetector = this._actionsDetector;
 
             new Sounds({
               actionsDetector: this._actionsDetector
             });
 
-            this._actionsDetector.onActionComplete.add(this.onActionComplete.bind(this));
-
             Promise.all([this.player.load(), this.webgl.load()]).then(() => {
+              this._actionsDetector.webcam = this.webgl.webcam;
               this.intro.loading = false;
             });
 
-            // let playerLoaded = false;
-            // this.player.addEventListener("load", () => {
-            //   playerLoaded = true;
-            //   this.intro.loading = playerLoaded && webgl;
-            // });
-
             this.intro.addEventListener("close", () => {
               this.player.play();
+              TweenLite.fromTo(this.player, 2, {
+                volume: 0
+              }, {
+                volume: 1
+              });
             });
           }
 
