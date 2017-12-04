@@ -12,6 +12,7 @@ import "../player/index.js";
 import ActionsDetector from "./ActionsDetector.js";
 import Sounds from "./Sounds.js";
 import "gsap/TweenLite";
+import GUI from "dlib/gui/GUI.js";
 
 Loader.load(["src/main/template.html", "src/Shrikhand-Regular.ttf"]).then(([templateHTML]) => {
   let template = document.createElement("template");
@@ -49,11 +50,13 @@ Loader.load(["src/main/template.html", "src/Shrikhand-Regular.ttf"]).then(([temp
       });
 
       this.intro.addEventListener("close", () => {
-        this.player.play();
-        TweenLite.fromTo(this.player, 2, {
-          volume: 0
-        }, {
-          volume: 1
+        this.player.load().then(() => {
+          this.player.play();
+          TweenLite.fromTo(this.player, 2, {
+            volume: 0
+          }, {
+            volume: 1
+          });
         });
       });
     }

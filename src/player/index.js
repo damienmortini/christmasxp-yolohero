@@ -66,7 +66,7 @@ Loader.load("src/player/template.html").then((templateHTML) => {
     }
 
     load() {
-      return new Promise((resolve) => {
+      this._loadPromise = this._loadPromise || new Promise((resolve) => {
         if(this.querySelector("#soundcloud-player")) {
           SoundCloudAPI.load().then(() => {
             const widget = SC.Widget(this.querySelector("iframe"));
@@ -82,11 +82,11 @@ Loader.load("src/player/template.html").then((templateHTML) => {
             widget.bind(SC.Widget.Events.READY, () => {
               this.volume = MUTE ? 0 : 1;
               widget.seekTo(OFFSET_TIME * 1000);
+              resolve();
             });
             widget.bind(SC.Widget.Events.PLAY_PROGRESS, (e) => {
               this._player.currentTime += (e.currentPosition * .001 - this._player.currentTime) * .2;
             });
-            resolve();
           });
         } else if(this.querySelector("#youtube-player")) {
           YouTubeAPI.load().then(() => {
@@ -121,6 +121,7 @@ Loader.load("src/player/template.html").then((templateHTML) => {
           });
         }
       });
+      return this._loadPromise;
     }
 
     set volume(value) {

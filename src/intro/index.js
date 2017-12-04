@@ -1,6 +1,9 @@
 import "@webcomponents/custom-elements";
 
 import Loader from "dlib/utils/Loader.js";
+import GUI from "dlib/gui/GUI.js";
+
+const SKIP_INTRO = GUI.add({value: false}, "value", {label: "Skip Intro", reload: true}).value;
 
 Loader.load("src/intro/template.html").then((templateHTML) => {
   let template = document.createElement("template");
@@ -12,10 +15,18 @@ Loader.load("src/intro/template.html").then((templateHTML) => {
       
       this.loading = true;
 
-      this.querySelector("button").addEventListener("click", () => {
-        this.classList.add("hide");
-        this.dispatchEvent(new Event("close"));
-      });
+      this.querySelector("button").addEventListener("click", this.close.bind(this));
+
+      if(SKIP_INTRO) {
+        requestAnimationFrame(() => {
+          this.close();
+        });
+      }
+    }
+
+    close() {
+      this.classList.add("hide");
+      this.dispatchEvent(new Event("close"));
     }
 
     set loading(value) {
