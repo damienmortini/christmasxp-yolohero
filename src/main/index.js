@@ -46,9 +46,9 @@ Loader.load(["src/main/template.html", "src/Shrikhand-Regular.ttf"]).then(([temp
       this._actionsDetector.onActionComplete.add(this.onActionComplete.bind(this));
 
       Promise.all([this.player.load(), this.webgl.load()])
-        .then(() => {
-          this.intro.loading = false;
-        });
+      .then(() => {
+        this.intro.loading = false;
+      });
       
       // let playerLoaded = false;
       // this.player.addEventListener("load", () => {
@@ -58,6 +58,11 @@ Loader.load(["src/main/template.html", "src/Shrikhand-Regular.ttf"]).then(([temp
 
       this.intro.addEventListener("close", () => {
         this.player.play();
+        TweenLite.fromTo(this.player, 2, {
+          volume: 0
+        }, {
+          volume: 1
+        });
       });
     }
 

@@ -11185,34 +11185,39 @@ $__System.register('a', ['b', 'c', 'd'], function (_export, _context) {
 
       window.customElements.define("dlib-loop", LoopElement);
 
-      let template$1 = document.createElement("template");
-      Loader.load("src/intro/template.html").then(value => {
-        template$1.innerHTML = value;
-      });
-
-      Loader.onLoad.then(() => {
+      Loader.load("src/intro/template.html").then(templateHTML => {
+        let template = document.createElement("template");
+        template.innerHTML = templateHTML;
         window.customElements.define("christmasxp-yolohero-intro", class extends HTMLElement {
           connectedCallback() {
-            let templateClone = document.importNode(template$1.content, true);
+            let templateClone = document.importNode(template.content, true);
             this.appendChild(templateClone);
+
+            this.loading = true;
 
             this.querySelector("button").addEventListener("click", () => {
               this.classList.add("hide");
               this.dispatchEvent(new Event("close"));
             });
           }
+
+          set loading(value) {
+            const button = this.querySelector("button");
+            button.disabled = value;
+            button.textContent = value ? "loading..." : "play!";
+          }
         });
       });
 
-      let template$2 = document.createElement("template");
+      let template = document.createElement("template");
       Loader.load("src/outro/template.html").then(value => {
-        template$2.innerHTML = value;
+        template.innerHTML = value;
       });
 
       Loader.onLoad.then(() => {
         window.customElements.define("christmasxp-yolohero-outro", class extends HTMLElement {
           connectedCallback() {
-            let templateClone = document.importNode(template$2.content, true);
+            let templateClone = document.importNode(template.content, true);
             this.appendChild(templateClone);
           }
         });
@@ -18551,7 +18556,7 @@ $__System.register('a', ['b', 'c', 'd'], function (_export, _context) {
               textContent: "",
               fillStyle: "white",
               font: "40px Shrikhand-Regular",
-              offsetYPercentage: .2,
+              offsetYPercentage: window.chrome ? .2 : -.2,
               paddingPercentageWidth: .2,
               paddingPercentageHeight: .2
             });
@@ -18765,7 +18770,7 @@ $__System.register('a', ['b', 'c', 'd'], function (_export, _context) {
             font: `${50 * window.devicePixelRatio}px Shrikhand-Regular`,
             paddingPercentageWidth: .2,
             paddingPercentageHeight: .2,
-            offsetYPercentage: .2
+            offsetYPercentage: window.chrome ? .2 : 0
           });
 
           this._scale = 1;
@@ -18972,7 +18977,7 @@ $__System.register('a', ['b', 'c', 'd'], function (_export, _context) {
             font: `${50 * window.devicePixelRatio}px Shrikhand-Regular`,
             paddingPercentageWidth: .2,
             paddingPercentageHeight: .2,
-            offsetYPercentage: .25
+            offsetYPercentage: window.chrome ? .2 : 0
           });
 
           this._scale = 1;
@@ -19778,8 +19783,6 @@ $__System.register('a', ['b', 'c', 'd'], function (_export, _context) {
 
       window.customElements.define("dlib-gui", GUI);
 
-      Loader.load("src/Shrikhand-Regular.ttf");
-
       const CAMERA_CONTROLLER = GUI.add({ value: false }, "value", { label: "Camera Controller", reload: true }).value;
 
       const QUATERNION = new Quaternion();
@@ -19920,75 +19923,74 @@ $__System.register('a', ['b', 'c', 'd'], function (_export, _context) {
         }
       }
 
-      let template$3 = document.createElement("template");
-      Loader.load("src/webgl/template.html").then(value => {
-        template$3.innerHTML = value;
-      });
+      window.customElements.define("christmasxp-yolohero-webgl", class extends LoopElement {
+        connectedCallback() {
+          super.connectedCallback();
 
-      Loader.onLoad.then(() => {
-        window.customElements.define("christmasxp-yolohero-webgl", class extends LoopElement {
-          connectedCallback() {
-            super.connectedCallback();
+          this.canvas = document.createElement("canvas");
+          this.appendChild(this.canvas);
 
-            let templateClone = document.importNode(template$3.content, true);
-            this.appendChild(templateClone);
+          this._actionsDetector = false;
 
-            this._actionsDetector = false;
+          this.canvas = this.querySelector("canvas");
 
-            this.canvas = this.querySelector("canvas");
+          this.gl = this.canvas.getContext(WebGL2RenderingContext ? "webgl2" : "webgl", {
+            depth: true,
+            alpha: false,
+            antialias: true
+          });
 
-            this.gl = this.canvas.getContext(WebGL2RenderingContext ? "webgl2" : "webgl", {
-              depth: true,
-              alpha: false,
-              antialias: true
-            });
+          this.webcam = new WebCam({ gl: this.gl });
 
-            this.webcam = new WebCam({ gl: this.gl });
+          window.addEventListener("resize", this._resizeBinded = this.resize.bind(this));
+        }
 
-            window.addEventListener("resize", this._resizeBinded = this.resize.bind(this));
-          }
-
-          init({
+        init({
+          player,
+          actionsDetector
+        }) {
+          this.view = new View({
+            gl: this.gl,
+            webcam: this.webcam,
             player,
             actionsDetector
-          }) {
-            this.view = new View({
-              gl: this.gl,
-              webcam: this.webcam,
-              player,
-              actionsDetector
-            });
+          });
 
-            this.resize();
+          this.resize();
+        }
+
+        load() {
+          return new Promise(resolve => {
+            resolve();
+          });
+        }
+
+        set score(value) {
+          this.view.score = value;
+        }
+
+        disconnectedCallback() {
+          window.removeEventListener("resize", this._resizeBinded);
+        }
+
+        resize() {
+          let width = this.canvas.offsetWidth;
+          let height = this.canvas.offsetHeight;
+
+          this.canvas.width = width * window.devicePixelRatio;
+          this.canvas.height = height * window.devicePixelRatio;
+
+          this.view.resize({ width, height });
+        }
+
+        update() {
+          if (!this.view) {
+            return;
           }
 
-          set score(value) {
-            this.view.score = value;
-          }
-
-          disconnectedCallback() {
-            window.removeEventListener("resize", this._resizeBinded);
-          }
-
-          resize() {
-            let width = this.canvas.offsetWidth;
-            let height = this.canvas.offsetHeight;
-
-            this.canvas.width = width * window.devicePixelRatio;
-            this.canvas.height = height * window.devicePixelRatio;
-
-            this.view.resize({ width, height });
-          }
-
-          update() {
-            if (!this.view) {
-              return;
-            }
-
-            this.webcam.update();
-            this.view.update();
-          }
-        });
+          this.webcam.update();
+          this.view.update();
+        }
       });
 
       class YouTubeAPI {
@@ -20040,11 +20042,6 @@ $__System.register('a', ['b', 'c', 'd'], function (_export, _context) {
       const MUTE = GUI.add({ value: false }, "value", { label: "Mute Music", reload: true }).value;
       const OFFSET_TIME = GUI.add({ value: 0 }, "value", { label: "Time Offset", reload: true }).value;
 
-      let template$4 = document.createElement("template");
-      Loader.load("src/player/template.html").then(value => {
-        template$4.innerHTML = value;
-      });
-
       const START_TIME = [...DATA$1.slices.values()][0].startTime;
 
       const ACTIONS = [];
@@ -20062,12 +20059,20 @@ $__System.register('a', ['b', 'c', 'd'], function (_export, _context) {
         }
       }
 
-      Loader.onLoad.then(() => {
+      Loader.load("src/player/template.html").then(templateHTML => {
+        let template = document.createElement("template");
+        template.innerHTML = templateHTML;
         window.customElements.define("christmasxp-yolohero-player", class extends LoopElement {
+          constructor() {
+            super({
+              autoplay: false
+            });
+          }
+
           connectedCallback() {
             super.connectedCallback();
 
-            let templateClone = document.importNode(template$4.content, true);
+            let templateClone = document.importNode(template.content, true);
             this.appendChild(templateClone);
 
             this.onActionChange = new Signal();
@@ -20082,62 +20087,69 @@ $__System.register('a', ['b', 'c', 'd'], function (_export, _context) {
             this._currentSliceStartTime = 0;
             this._currentSlice = null;
 
-            if (this.querySelector("#soundcloud-player")) {
-              SoundCloudAPI.load().then(() => {
-                const widget = SC.Widget(this.querySelector("iframe"));
-                this._player = {
-                  currentTime: 0,
-                  set volume(value) {
-                    widget.setVolume(value * 100);
-                  }
-                };
-                widget.bind(SC.Widget.Events.READY, () => {
-                  this.volume = MUTE ? 0 : 1;
-                  widget.seekTo(OFFSET_TIME * 1000);
-                  widget.play();
-                });
-                widget.bind(SC.Widget.Events.PLAY_PROGRESS, e => {
-                  this._player.currentTime += (e.currentPosition * .001 - this._player.currentTime) * .2;
-                });
-              });
-            }
-
-            if (this.querySelector("#youtube-player")) {
-              YouTubeAPI.load().then(() => {
-                const youtubePlayer = new YT.Player("youtube-player", {
-                  height: "390",
-                  width: "640",
-                  videoId: "B-NckB3CQ9o",
-                  // videoId: "I-s4kSMjmhY",
-                  // videoId: "BFNZxrBFnpg",
-                  playerVars: {
-                    autoplay: 1,
-                    // controls: 0,
-                    start: Math.floor(START_TIME)
-                  },
-                  events: {
-                    onReady: e => {
-                      if (MUTE) {
-                        youtubePlayer.mute();
-                      }
-                      youtubePlayer.playVideo();
-                    },
-                    onStateChange: e => {}
-                  }
-                });
-                this._player = {
-                  get currentTime() {
-                    return youtubePlayer.getCurrentTime ? youtubePlayer.getCurrentTime() : 0;
-                  }
-                };
-              });
-            }
-
             // this._previousKeyboardBeatTime = 0;
             // Keyboard.addEventListener("keydown", () => {
             //   console.log(60 / (this._player.currentTime - this._previousKeyboardBeatTime));
             //   this._previousKeyboardBeatTime = this._player.currentTime;
             // });
+          }
+
+          load() {
+            return new Promise(resolve => {
+              if (this.querySelector("#soundcloud-player")) {
+                SoundCloudAPI.load().then(() => {
+                  const widget = SC.Widget(this.querySelector("iframe"));
+                  this._player = {
+                    currentTime: 0,
+                    set volume(value) {
+                      widget.setVolume(value * 100);
+                    },
+                    play() {
+                      widget.play();
+                    }
+                  };
+                  widget.bind(SC.Widget.Events.READY, () => {
+                    this.volume = MUTE ? 0 : 1;
+                    widget.seekTo(OFFSET_TIME * 1000);
+                  });
+                  widget.bind(SC.Widget.Events.PLAY_PROGRESS, e => {
+                    this._player.currentTime += (e.currentPosition * .001 - this._player.currentTime) * .2;
+                  });
+                  resolve();
+                });
+              } else if (this.querySelector("#youtube-player")) {
+                YouTubeAPI.load().then(() => {
+                  const youtubePlayer = new YT.Player("youtube-player", {
+                    height: "390",
+                    width: "640",
+                    videoId: "B-NckB3CQ9o",
+                    // videoId: "I-s4kSMjmhY",
+                    // videoId: "BFNZxrBFnpg",
+                    playerVars: {
+                      autoplay: 1,
+                      // controls: 0,
+                      start: Math.floor(START_TIME)
+                    },
+                    events: {
+                      onReady: e => {
+                        if (MUTE) {
+                          youtubePlayer.mute();
+                        }
+                        resolve();
+                      }
+                    }
+                  });
+                  this._player = {
+                    get currentTime() {
+                      return youtubePlayer.getCurrentTime ? youtubePlayer.getCurrentTime() : 0;
+                    },
+                    play() {
+                      youtubePlayer.playVideo();
+                    }
+                  };
+                });
+              }
+            });
           }
 
           set volume(value) {
@@ -20152,6 +20164,11 @@ $__System.register('a', ['b', 'c', 'd'], function (_export, _context) {
 
           get actions() {
             return ACTIONS;
+          }
+
+          play() {
+            super.play();
+            this._player.play();
           }
 
           update() {
@@ -20321,12 +20338,9 @@ $__System.register('a', ['b', 'c', 'd'], function (_export, _context) {
         }
       }
 
-      let template = document.createElement("template");
-      Loader.load("src/main/template.html").then(value => {
-        template.innerHTML = value;
-      });
-
-      Loader.onLoad.then(() => {
+      Loader.load(["src/main/template.html", "src/Shrikhand-Regular.ttf"]).then(([templateHTML]) => {
+        let template = document.createElement("template");
+        template.innerHTML = templateHTML;
         window.customElements.define("christmasxp-yolohero-main", class extends LoopElement {
           connectedCallback() {
             super.connectedCallback();
@@ -20338,7 +20352,7 @@ $__System.register('a', ['b', 'c', 'd'], function (_export, _context) {
 
             this.player = document.querySelector("christmasxp-yolohero-player");
             this.webgl = document.querySelector("christmasxp-yolohero-webgl");
-            const ui = document.querySelector("christmasxp-yolohero-ui");
+            this.intro = document.querySelector("christmasxp-yolohero-intro");
 
             this._actionsDetector = new ActionsDetector({
               player: this.player,
@@ -20355,6 +20369,20 @@ $__System.register('a', ['b', 'c', 'd'], function (_export, _context) {
             });
 
             this._actionsDetector.onActionComplete.add(this.onActionComplete.bind(this));
+
+            Promise.all([this.player.load(), this.webgl.load()]).then(() => {
+              this.intro.loading = false;
+            });
+
+            // let playerLoaded = false;
+            // this.player.addEventListener("load", () => {
+            //   playerLoaded = true;
+            //   this.intro.loading = playerLoaded && webgl;
+            // });
+
+            this.intro.addEventListener("close", () => {
+              this.player.play();
+            });
           }
 
           onActionComplete({ action }) {
