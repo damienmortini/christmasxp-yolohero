@@ -4,9 +4,11 @@ import GLProgram from "dlib/gl/GLProgram.js";
 import BlurShader from "dlib/shaders/BlurShader.js";
 import GLMesh from "dlib/gl/GLMesh.js";
 import Ticker from "dlib/utils/Ticker.js";
+import { hexToRGB } from "dlib/math/Color.js";
+import { COLORS } from "./Colors.js";
 
 const FRAME_BUFFER_SIZE = 512;
-const BLUR_PASSES = 2;
+const BLUR_PASSES = 1;
 
 export default class WebCam {
   constructor({gl}) {
@@ -49,16 +51,16 @@ export default class WebCam {
     this.videoTexture.wrapS = this.videoTexture.wrapT = this.gl.CLAMP_TO_EDGE;
 
     this.frameBuffers = [];
-    for (let i = 0; i < 4; i++) {
+    for (let i = 0; i < 5; i++) {
       const frameBuffer = new GLFrameBuffer({gl: this.gl});
       frameBuffer.attach({
         texture: new GLTexture({
           gl: this.gl,
           minFilter: this.gl.LINEAR,
-          internalformat: i === 3 ? this.gl.R8 : this.gl.RGB,
-          format: i === 3 ? this.gl.RED : this.gl.RGB,
-          width: i === 3 ? 1 : FRAME_BUFFER_SIZE,
-          height: i === 3 ? 1 : FRAME_BUFFER_SIZE,
+          internalformat: i === 4 ? this.gl.BGR8 : this.gl.RGB,
+          format: i === 4 ? this.gl.RGBA : this.gl.RGB,
+          width: i === 4 ? 1 : FRAME_BUFFER_SIZE,
+          height: i === 4 ? 1 : FRAME_BUFFER_SIZE,
           wrapS: this.gl.MIRRORED_REPEAT,
           wrapT: this.gl.MIRRORED_REPEAT,
         })
@@ -113,6 +115,47 @@ export default class WebCam {
       ]}]
     });
     this.blurProgram.attributes.set(this._mesh.attributes);
+
+    this.envMapProgram = new GLProgram({
+      gl: this.gl,
+      vertexShaderChunks: [
+        ["start", `
+          in vec2 position;
+          in vec2 uv;
+
+          out vec2 vUv;
+        `],
+        ["end", `
+          vec2 uv = vec2(uv.x, 1. - uv.y);
+          vUv = uv;
+          gl_Position = vec4(position, 0., 1.);
+        `]
+      ],
+      fragmentShaderChunks: [
+        ["start", `
+          precision highp float;
+
+          uniform sampler2D frame;
+          uniform vec3 colors[3];
+
+          in vec2 vUv;
+        `],
+        ["end", `
+          vec3 frameTexel = texture(frame, vUv).rgb;
+          float grey = (frameTexel.r + frameTexel.g + frameTexel.b) / 3.;
+          vec3 rainbow = mix(colors[0], colors[1], smoothstep(0., .33, grey));
+          rainbow = mix(rainbow, colors[2], smoothstep(.33, .66, grey));
+          fragColor.rgb = rainbow;
+        `]
+      ]
+    });
+    this.envMapProgram.use();
+    this.envMapProgram.uniforms.set("colors", [
+      hexToRGB(COLORS[1]),
+      hexToRGB(COLORS[2]),
+      hexToRGB(COLORS[3]),
+    ]);
+    this.envMapProgram.attributes.set(this._mesh.attributes);
 
     this.endProgram = new GLProgram({
       gl: this.gl,
@@ -176,7 +219,7 @@ export default class WebCam {
     });
     this.debugProgram.attributes.set(this._mesh.attributes);
 
-    navigator.mediaDevices.getUserMedia({ audio: true, video: { width: window.innerWidth * .2, height: window.innerHeight * .2, facingMode: "user" } }).then((stream) => {
+    navigator.mediaDevices.getUserMedia({ audio: true, video: { width: 320, height: 240, facingMode: "user" } }).then((stream) => {
       this.video.srcObject = stream;
       this.video.muted = true;
 
@@ -225,7 +268,7 @@ export default class WebCam {
       }
     }
 
-    this.frameBuffers[3].bind();
+    this.frameBuffers[4].bind();
     this.endProgram.use();
     this.frameBuffers[1].colorTextures[0].bind();
     this.endProgram.uniforms.set("frame", 0);
@@ -237,16 +280,16 @@ export default class WebCam {
       width: 1,
       height: 1
     });
+    this.frameBuffers[4].unbind();
 
-    let motionRatio = 0;
-
-    const pixels = new Uint8Array(1);
-    this.gl.readPixels(0, 0, 1, 1, this.gl.RED, this.gl.UNSIGNED_BYTE, pixels);
-    motionRatio = pixels[0] / 255 * 100;
-
-    motionRatio = motionRatio || (this.motionRatio * .8);
-    this.motionRatio += (motionRatio - this.motionRatio) * .1;
-
+    this.frameBuffers[3].bind();
+    this.envMapProgram.use();
+    this.frameBuffers[2].colorTextures[0].bind();
+    this.envMapProgram.uniforms.set("frame", 0);
+    this._draw({
+      width: FRAME_BUFFER_SIZE,
+      height: FRAME_BUFFER_SIZE
+    });
     this.frameBuffers[3].unbind();
 
     // this.debugProgram.use();
@@ -267,10 +310,30 @@ export default class WebCam {
 
     this.gl.enable(this.gl.CULL_FACE);
     this.gl.enable(this.gl.DEPTH_TEST);
+
+    // this._animationFrameId = requestAnimationFrame(() => {
+    //   cancelAnimationFrame(this._animationFrameId);
+      this.frameBuffers[4].bind();
+  
+      let motionRatio = 0;
+
+      const pixels = new Uint8Array(4);
+      this.gl.readPixels(0, 0, 1, 1, this.gl.RGBA, this.gl.UNSIGNED_BYTE, pixels);
+      motionRatio = pixels[0] / 255 * 100;
+  
+      motionRatio = motionRatio || (this.motionRatio * .8);
+      this.motionRatio += (motionRatio - this.motionRatio) * .1;
+  
+      this.frameBuffers[4].unbind();
+    // });
   }
 
   get frameTexture() {
     return this.frameBuffers[2].colorTextures[0];
+  }
+
+  get envMap() {
+    return this.frameBuffers[3].colorTextures[0];
   }
 
   _draw({

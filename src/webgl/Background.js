@@ -10,6 +10,7 @@ import GLTexture from "dlib/gl/GLTexture.js";
 import GLTFLoader from "dlib/gl/GLTFLoader.js";
 import GLTFMesh from "dlib/gl/GLTFMesh.js";
 import Matrix4 from "dlib/math/Matrix4.js";
+import { COLORS } from "./colors.js";
 
 export default class Background {
   constructor({
@@ -65,6 +66,7 @@ export default class Background {
 
         uniform vec2 resolution;
         uniform float motion;
+        uniform sampler2D envMap;
         uniform sampler2D webcamTexture;
 
         in vec2 vUv;
@@ -81,18 +83,20 @@ export default class Background {
         ${PBRShader.computeGGXLighting()}
         ${PBRShader.computePBRLighting({
           pbrReflectionFromRay: `
-            vec3 webcamTexel = texture(webcamTexture, ray.direction.xy * 2.).rgb;
-            float grey = (webcamTexel.r + webcamTexel.g + webcamTexel.b) / 3.;
+            vec3 envMapTexel = texture(envMap, ray.direction.xy * 2.).rgb;
+            float grey = (envMapTexel.r + envMapTexel.g + envMapTexel.b) / 3.;
 
             vec3 rainbow = mix(colors[0], colors[1], smoothstep(0., .33, grey));
             rainbow = mix(rainbow, colors[2], smoothstep(.33, .66, grey));
 
             vec3 color = .95 + vec3(grey) * .05;
 
-            color = mix(color, rainbow, motion);
+            color = mix(color, rainbow, min(motion, 1.));
 
             // return .8 + vec3(step(.5, grey)) * .2;
-            return color;
+            // return clamp(color, vec3(0.), vec3(1.));
+            // return clamp(color, vec3(0.), vec3(1.));
+            return envMapTexel;
           `
         })}
 
@@ -105,26 +109,9 @@ export default class Background {
         })}
 
         void main() {
-          vec4 webcam = texture(webcamTexture, vUv);
-          float grey = (webcam.r + webcam.g + webcam.b) / 3.;
-          fragColor.rgb = mix(colors[0], colors[1], smoothstep(0., .33, grey));
-          fragColor.rgb = mix(fragColor.rgb, colors[2], smoothstep(.33, .66, grey));
-          // fragColor.rgb = colors[0];
-          // fragColor.rgb = mix(fragColor.rgb, colors[1], step(.1, grey));
-          // fragColor.rgb = mix(fragColor.rgb, colors[2], step(.2, grey));
-          // fragColor.rgb = mix(fragColor.rgb, colors[0], step(.3, grey));
-          // fragColor.rgb = mix(fragColor.rgb, colors[1], step(.3, grey));
-          // fragColor.rgb = mix(fragColor.rgb, colors[2], step(.4, grey));
-          // fragColor.rgb = mix(fragColor.rgb, colors[0], step(.5, grey));
-          // fragColor.rgb = mix(fragColor.rgb, colors[1], step(.6, grey));
-          // fragColor.rgb = mix(fragColor.rgb, colors[2], step(.7, grey));
-          // fragColor.rgb = mix(fragColor.rgb, colors[0], step(.8, grey));
-          // fragColor.rgb = mix(fragColor.rgb, colors[1], step(.9, grey));
-          // fragColor.rgb += .5 * motion;
-
           float roughness = 1. - smoothstep(0., .5, pow(vUv.y, 2.));
 
-          vec4 bump = bumpFromDepth(webcamTexture, vUv, resolution * .01, .1 + motion * .2);
+          vec4 bump = bumpFromDepth(webcamTexture, vUv, resolution * .01, .1 + .2 * motion);
           bump = mix(bump, vec4(vNormal, 0.), roughness);
 
           vec3 normal = normalize(vNormal + bump.xyz);
@@ -133,7 +120,7 @@ export default class Background {
           black *= smoothstep(.02, .03, abs(fract((vUv.y + bump.y * bump.w * .1) * 58.) * 2. - 1.));
 
           vec3 diffuse = vec3(1.);
-          // diffuse *= black;
+          diffuse *= clamp(black + (1. - vUv.y), 0., 1.);
 
           vec3 color = computePBRLighting(
             Ray(vec3(0., 0., 1.), normalize(vec3(vPosition, -1.))), 
@@ -168,9 +155,9 @@ export default class Background {
 
     this.program.use();
     this.program.uniforms.set("colors", [
-      hexToRGB("#f9ef03"),
-      hexToRGB("#f2018c"),
-      hexToRGB("#02aef0"),
+      hexToRGB(COLORS[1]),
+      hexToRGB(COLORS[2]),
+      hexToRGB(COLORS[3]),
     ]);
   }
 
@@ -186,6 +173,10 @@ export default class Background {
     this.program.uniforms.set("transform", this.transform);
     this.program.uniforms.set("resolution", [this.gl.canvas.width, this.gl.canvas.height]);
     this.program.uniforms.set("motion", this.webcam.motionRatio);
+    this.webcam.envMap.bind({
+      unit: 2
+    });
+    this.program.uniforms.set("envMap", 2);
     
     this._mesh.indices.buffer.bind();
     this._mesh.draw();

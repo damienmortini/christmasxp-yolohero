@@ -3,11 +3,6 @@
 @import "../intro/index.css";
 @import "../outro/index.css";
 
-@font-face {
-  font-family: "Shrikhand-Regular";
-  src:  url("src/Shrikhand-Regular.ttf") format("truetype");
-}
-
 christmasxp-yolohero-main {
   display: block;
   position: relative;
@@ -51,7 +46,7 @@ christmasxp-yolohero-main christmasxp-yolohero-player {
   opacity: 1;
   transition-property: transform, opacity;
   transition-duration: 1s;
-  /* display: none; */
+  visibility: hidden;
 }
 
 christmasxp-yolohero-main christmasxp-yolohero-player:hover {

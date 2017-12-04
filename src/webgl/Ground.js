@@ -1,6 +1,5 @@
 import GLMesh from "dlib/gl/GLMesh.js";
 import GLProgram from "dlib/gl/GLProgram.js";
-import { hexToRGB } from "dlib/math/Color.js";
 import Matrix4 from "dlib/math/Matrix4.js";
 
 export default class Ground {

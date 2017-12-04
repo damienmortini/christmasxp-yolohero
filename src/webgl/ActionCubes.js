@@ -5,7 +5,6 @@ import PBRShader from "dlib/shaders/PBRShader.js";
 import NoiseShader from "dlib/shaders/NoiseShader.js";
 import RayShader from "dlib/shaders/RayShader.js";
 import LightShader from "dlib/shaders/LightShader.js";
-import { hexToRGB } from "dlib/math/Color.js";
 import GLTexture from "dlib/gl/GLTexture.js";
 import GLTFLoader from "dlib/gl/GLTFLoader.js";
 import GLTFMesh from "dlib/gl/GLTFMesh.js";

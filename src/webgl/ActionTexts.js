@@ -12,6 +12,7 @@ import RayShader from "dlib/shaders/RayShader.js";
 import PBRShader from "dlib/shaders/PBRShader.js";
 import CameraShader from "dlib/shaders/CameraShader.js";
 import NoiseShader from "dlib/shaders/NoiseShader.js";
+import { COLORS } from "./colors.js";
 import "gsap/TweenLite";
 
 let DEFAULT_TEXT;
@@ -25,28 +26,28 @@ const TYPES_DATA = new Map([
     position: -3,
     text: "Move mouse!",
     uvOffset: [0, 0],
-    color: hexToRGB("#0018a1")
+    color: hexToRGB(COLORS[0])
   }],
   ["keyboard", {
     rotation: 0,
     position: -1,
     text: "Press keyboard!",
     uvOffset: [.5, 0],
-    color: hexToRGB("#7942b1")
+    color: hexToRGB(COLORS[1])
   }],
   ["motion", {
     rotation: 0,
     position: 1,
     text: "Dance!",
     uvOffset: [0, .5],
-    color: hexToRGB("#f8c401")
+    color: hexToRGB(COLORS[2])
   }],
   ["sound", {
     rotation: 0,
     position: 3,
     text: "Shout/clap!",
     uvOffset: [.5, .5],
-    color: hexToRGB("#bd0004")
+    color: hexToRGB(COLORS[3])
   }]
 ]);
 
@@ -63,7 +64,8 @@ export default class ActionTexts {
 
     Promise.all([
       GLTFLoader.load("src/webgl/button/buttons.gltf"), 
-      Loader.load("src/webgl/button/pattern.png")
+      // Loader.load("src/webgl/button/pattern.png")
+      Loader.load("src/webgl/button/marble.jpg")
     ]).then(([data, image]) => {
       this._patternTexture = new GLTexture({
         gl: this.gl,
@@ -122,7 +124,8 @@ export default class ActionTexts {
             vNormal = mat3(transform) * normal;
             vNormal = normalize(vNormal);
 
-            vUv2 = fract(uv * .5 + uvOffset) * 20.;
+            // vUv2 = fract(uv * .5 + uvOffset) * 20.;
+            vUv2 = uv;
           }
         `,
         fragmentShader: `#version 300 es
@@ -134,7 +137,7 @@ export default class ActionTexts {
           uniform sampler2D patternTexture;
           uniform float opacity;
           uniform float text;
-          uniform vec3 diffuse;
+          uniform vec3 typeColor;
           uniform Camera camera;
           uniform float success;
   
@@ -155,7 +158,7 @@ export default class ActionTexts {
           ${PBRShader.computeGGXLighting()}
           ${PBRShader.computePBRLighting({
             pbrReflectionFromRay: `
-              vec3 color = texture(patternTexture, ray.direction.xy * 2.).rgb;
+              vec3 color = texture(patternTexture, ray.direction.xy * .1).rgb;
               return color;
             `
           })}
@@ -167,21 +170,28 @@ export default class ActionTexts {
             vec3 color = vec3(0.);
 
             vec4 textTexel = texture(textTexture, vUv);
-            vec4 pattern = texture(patternTexture, vUv2 );
+            vec4 patternTexel = texture(patternTexture, vUv2);
+
+            float pattern = (patternTexel.r + patternTexel.g + patternTexel.b) / 3.;
 
             textTexel.a *= text;
-            pattern.r *= 1. - text;
+            pattern *= 1. - text;
+
+            vec3 diffuse = mix(typeColor, vec3(1.), pattern);
+
+            // color = diffuse;
 
             color += computePBRLighting(
               ray, 
               Light(vec3(1.), vec3(0.), vec3(-1.), .9),
               vPosition,
               vNormal,
-              PhysicallyBasedMaterial(diffuse * (1. - textTexel.a), pattern.r * .2, (1. - pattern.r), 1. - textTexel.a * .8)
-              // PhysicallyBasedMaterial(diffuse * (1. - textTexel.a), 0., 1., 1. - textTexel.a * .8)
+              PhysicallyBasedMaterial(diffuse, 0., pattern, 1.)
+              // PhysicallyBasedMaterial(diffuse * (1. - textTexel.a), pattern * .2, (1. - pattern), 1. - textTexel.a * .8)
+              // PhysicallyBasedMaterial(diffuse * (1. - textTexel.a), 0., 1., 0.)
             );
 
-            // color = mix(vec3(1.), diffuse, pattern.r);
+            // color = mix(vec3(1.), diffuse, pattern);
             color *= min(1., 1. + success);
 
             fragColor.rgb = color;
@@ -354,7 +364,7 @@ export default class ActionTexts {
     for (let [type, actionObjectsArray] of this._typeSortedActionObjects) {
       const typeData = TYPES_DATA.get(type);
       this.program.uniforms.set("uvOffset", typeData.uvOffset);
-      this.program.uniforms.set("diffuse", typeData.color);
+      this.program.uniforms.set("typeColor", typeData.color);
       
       const mesh = this._meshes.get(type);
       mesh.indices.buffer.bind();
@@ -392,7 +402,7 @@ export default class ActionTexts {
         }
         MATRIX4.scale(SCALE);
         MATRIX4.multiply(this.transform, MATRIX4);
-        this.program.uniforms.set("diffuse", typeData.color);
+        this.program.uniforms.set("typeColor", typeData.color);
         this.program.uniforms.set("transform", MATRIX4);
         mesh.draw();
       }

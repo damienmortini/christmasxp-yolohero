@@ -63,7 +63,7 @@ window.customElements.define("christmasxp-yolohero-webgl", class extends LoopEle
       return;
     }
 
-    this.webcam.update();
     this.view.update();
+    this.webcam.update();
   }
 });

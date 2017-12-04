@@ -22,6 +22,10 @@ const CAMERA_CONTROLLER = GUI.add({value: false}, "value", {label: "Camera Contr
 const QUATERNION = new Quaternion();
 const VECTOR3 = new Vector3();
 
+const COLORS = [
+
+]
+
 export default class View {
   constructor({
     gl,
@@ -63,10 +67,6 @@ export default class View {
       gl: this.gl,
       webcam: this.webcam
     });
-    this.background.transform.scale([window.innerWidth * .1, window.innerHeight * .05, 40]);
-    this.background.transform.rotateX(.1);
-    this.background.transform.y = -2.9;
-    this.background.transform.z = 2.9;
 
     this.actionTexts = new ActionTexts({
       gl: this.gl,
@@ -105,6 +105,13 @@ export default class View {
     this.camera.aspectRatio = width / height;
     this.actionTexts.resize({width, height});
     this.update();
+
+    // Background resize
+    this.background.transform.identity();
+    this.background.transform.scale([120, 40, 40]);
+    this.background.transform.rotateX(.1);
+    this.background.transform.y = -2.9;
+    this.background.transform.z = 2.9;
   }
 
   set score(value) {
