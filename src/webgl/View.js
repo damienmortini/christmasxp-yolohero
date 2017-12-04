@@ -16,8 +16,11 @@ import GLTexture from "dlib/gl/GLTexture.js";
 import Vector2 from "dlib/math/Vector2.js";
 import Quaternion from "dlib/math/Quaternion.js";
 import Vector3 from "dlib/math/Vector3.js";
+import GUI from "dlib/gui/GUI.js";
 
 Loader.load("src/Shrikhand-Regular.ttf");
+
+const CAMERA_CONTROLLER = GUI.add({value: false}, "value", {label: "Camera Controller", reload: true}).value;
 
 const QUATERNION = new Quaternion();
 const VECTOR3 = new Vector3();
@@ -39,6 +42,7 @@ export default class View {
     this._cameraTiltMaxAngle = .2;
     this._cameraTiltEasing = .02;
 
+    this.gl.clearColor(1, 1, 1, 1);    
     this.gl.enable(this.gl.CULL_FACE);
 
     this.camera = new Camera();
@@ -55,17 +59,17 @@ export default class View {
     this.cameraController = new TrackballController({
       matrix: this.camera.transform,
       distance: 10,
-      // enabled: false
+      enabled: CAMERA_CONTROLLER
     });
 
     this.background = new Background({
       gl: this.gl,
       webcam: this.webcam
     });
-    this.background.transform.scale([window.innerWidth * .079, window.innerHeight * .037, 30]);
+    this.background.transform.scale([window.innerWidth * .1, window.innerHeight * .05, 40]);
     this.background.transform.rotateX(.1);
-    this.background.transform.y = -3.1;
-    this.background.transform.z = 3.1;
+    this.background.transform.y = -2.9;
+    this.background.transform.z = 2.9;
 
     this.actionTexts = new ActionTexts({
       gl: this.gl,
@@ -117,9 +121,8 @@ export default class View {
   }
  
   update() {
-    this.gl.clearColor(0, 0, 0, 1);
-
     this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
+    this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
 
     if(this.cameraController.enabled) {
       this.cameraController.update();

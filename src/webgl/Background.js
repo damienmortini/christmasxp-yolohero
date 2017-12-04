@@ -122,7 +122,7 @@ export default class Background {
           // fragColor.rgb = mix(fragColor.rgb, colors[1], step(.9, grey));
           // fragColor.rgb += .5 * motion;
 
-          float roughness = pow(vNormal.y, 10.);
+          float roughness = 1. - smoothstep(0., .5, pow(vUv.y, 2.));
 
           vec4 bump = bumpFromDepth(webcamTexture, vUv, resolution * .01, .1 + motion * .2);
           bump = mix(bump, vec4(vNormal, 0.), roughness);
@@ -157,6 +157,11 @@ export default class Background {
 
           fragColor = vec4(color, 1.);
           // fragColor = vec4(1., 0., 0., 1.);
+
+          float side = smoothstep(.9, 1., vUv.y);
+          side += smoothstep(.7, 1., abs(vUv.x * 2. - 1.));
+          side = min(side, 1.);
+          fragColor.rgb = mix(fragColor.rgb, vec3(1.), side);
         }
       `
     });
