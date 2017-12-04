@@ -67,6 +67,10 @@ export default class View {
       gl: this.gl,
       webcam: this.webcam
     });
+    this.background.transform.scale([116, 44, 44]);
+    this.background.transform.rotateX(.1);
+    this.background.transform.y = -2.8;
+    this.background.transform.z = 1.5;
 
     this.actionTexts = new ActionTexts({
       gl: this.gl,
@@ -106,13 +110,6 @@ export default class View {
     this.camera.aspectRatio = width / height;
     this.actionTexts.resize({width, height});
     this.update();
-
-    // Background resize
-    this.background.transform.identity();
-    this.background.transform.scale([120, 40, 40]);
-    this.background.transform.rotateX(.1);
-    this.background.transform.y = -2.9;
-    this.background.transform.z = 2.9;
   }
 
   set score(value) {

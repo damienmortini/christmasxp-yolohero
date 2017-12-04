@@ -23,6 +23,8 @@ export default class Background {
 
     this.transform = new Matrix4();
 
+    this._time = 0;
+
     // this.envMap = new GLTexture({
     //   gl: this.gl,
     //   data: 
@@ -66,6 +68,8 @@ export default class Background {
 
         uniform vec2 resolution;
         uniform float motion;
+        uniform float volume;
+        uniform float time;
         uniform sampler2D envMap;
         uniform sampler2D webcamTexture;
 
@@ -83,7 +87,7 @@ export default class Background {
         ${PBRShader.computeGGXLighting()}
         ${PBRShader.computePBRLighting({
           pbrReflectionFromRay: `
-            vec3 envMapTexel = texture(envMap, ray.direction.xy * 2.).rgb;
+            vec3 envMapTexel = texture(envMap, ray.direction.xy * .5 + .5).rgb;
             float grey = (envMapTexel.r + envMapTexel.g + envMapTexel.b) / 3.;
 
             vec3 rainbow = mix(colors[0], colors[1], smoothstep(0., .33, grey));
@@ -116,11 +120,20 @@ export default class Background {
 
           vec3 normal = normalize(vNormal + bump.xyz);
 
-          float black = smoothstep(.01, .015, abs(fract((vUv.x + bump.x * bump.w * .1) * 58.) * 2. - 1.));
+          float center = step(abs(vUv.x * 2. - 1.) + .0005, 5. / 58.) * roughness;
+
+          // float displacementRatio = volume * pow(1. - abs(vUv.y * 2. - 1.), 1.);
+          // float volumeDisplacement = cos(vUv.y * 40. + time * 10. + vUv.x * 3.14) * displacementRatio * .5;
+          // volumeDisplacement *= center;
+
+          float black = smoothstep(.01, .015, abs(fract((vUv.x + bump.x * bump.w * .1) * 58.) * 2. - 1.)) + center;
+          black = min(black, 1.);
           black *= smoothstep(.02, .03, abs(fract((vUv.y + bump.y * bump.w * .1) * 58.) * 2. - 1.));
 
           vec3 diffuse = vec3(1.);
-          diffuse *= clamp(black + (1. - vUv.y), 0., 1.);
+          // diffuse *= clamp(black + (1. - vUv.y), 0., 1.);
+          black += center;
+          diffuse *= black;
 
           vec3 color = computePBRLighting(
             Ray(vec3(0., 0., 1.), normalize(vec3(vPosition, -1.))), 
@@ -166,6 +179,8 @@ export default class Background {
       return;
     }
 
+    this._time += .1;
+
     this.program.use();
     this.webcam.frameTexture.bind();
     this.program.attributes.set(this._mesh.attributes);
@@ -173,6 +188,8 @@ export default class Background {
     this.program.uniforms.set("transform", this.transform);
     this.program.uniforms.set("resolution", [this.gl.canvas.width, this.gl.canvas.height]);
     this.program.uniforms.set("motion", this.webcam.motionRatio);
+    this.program.uniforms.set("volume", this.webcam.volume);
+    this.program.uniforms.set("time", this._time);
     this.webcam.envMap.bind({
       unit: 2
     });

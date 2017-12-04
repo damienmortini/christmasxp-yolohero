@@ -7,7 +7,7 @@ import Ticker from "dlib/utils/Ticker.js";
 import { hexToRGB } from "dlib/math/Color.js";
 import { COLORS } from "./Colors.js";
 
-const FRAME_BUFFER_SIZE = 512;
+const FRAME_BUFFER_SIZE = 256;
 const BLUR_PASSES = 2;
 
 export default class WebCam {

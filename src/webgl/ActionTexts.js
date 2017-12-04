@@ -189,7 +189,7 @@ export default class ActionTexts {
               Light(vec3(1.), vec3(0.), vec3(-1.), .9),
               vPosition,
               vNormal,
-              PhysicallyBasedMaterial(diffuse, 0., 0., 1.)
+              PhysicallyBasedMaterial(diffuse, 0., pattern, 1. - textTexel.a * .8)
               // PhysicallyBasedMaterial(diffuse * (1. - textTexel.a), pattern * .2, (1. - pattern), 1. - textTexel.a * .8)
               // PhysicallyBasedMaterial(diffuse * (1. - textTexel.a), 0., 1., 0.)
             );
@@ -342,7 +342,7 @@ export default class ActionTexts {
         continue;
       }
       const progress = (this.player.currentTime - action.time) * 5;
-      actionObject.opacity = Math.max(0, 1. - Math.abs(progress) * (progress < 0 ? .05 : .2));
+      actionObject.opacity = Math.max(0, 1. - Math.abs(progress) * (progress < 0 ? .025 : .2));
       if(!actionObject.opacity) {
         continue;
       }
@@ -351,6 +351,7 @@ export default class ActionTexts {
       actionObject.transform.x = actionObject.position;
       actionObject.transform.z = progress;
       actionObject.transform.scale(SCALE);
+      actionObject.transform.scale(Math.pow(actionObject.opacity, .2));
       // actionObject.transform.scale(1 + Math.max(0, 1. - Math.abs(progress) * 2));
       actionObject.transform.multiply(this.transform, actionObject.transform);
     }
