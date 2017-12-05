@@ -23,7 +23,7 @@ Loader.load("src/outro/template.html").then((templateHTML) => {
       this.classList.toggle("hide", !value);
       if(value && this._score !== undefined) {
         const score = this.querySelector(".score");
-        this.querySelector("textarea").value = `I’ve done ${this._score} at Yolo Hero! 🚀 🎹 ✨ 🤘 ☃️
+        this.querySelector("textarea").value = `I’ve done a score of ${this._score} at Yolo Hero! 🚀 🎹 ✨ 🤘 ☃️
 Can you do better???
 Merry Christmas!!!
 ${window.location}

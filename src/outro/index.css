@@ -12,6 +12,7 @@ christmasxp-yolohero-outro {
 
 .content {
   max-width: 90%;
+  perspective: 500px;
 }
 
 christmasxp-yolohero-main christmasxp-yolohero-outro h2 {
@@ -30,6 +31,7 @@ christmasxp-yolohero-main h2.score {
 }
 
 christmasxp-yolohero-outro .share {
+  cursor: pointer;
   border-radius: 5px;
   margin: 1em 0;
   position: relative;
@@ -39,10 +41,14 @@ christmasxp-yolohero-outro .share {
 }
 
 christmasxp-yolohero-outro .share:hover h3 {
-  visibility: hidden;
+  transform: rotateX(-90deg);
+  transition-timing-function: cubic-bezier(0.175, 0.885, 0.32, 1.275);;
 }
 
 christmasxp-yolohero-outro .share h3 {
+  transition-property: transform;
+  transition-duration: .6s;
+  transform-origin: 50% 100%;
   border-radius: inherit;
   color: #e7fc73;
   display: flex;
@@ -59,6 +65,7 @@ christmasxp-yolohero-outro .share h3 {
 }
 
 christmasxp-yolohero-outro textarea {
+  cursor: pointer;
   font-family: "Raleway", sans-serif;
   border-radius: inherit;
   text-align: center;

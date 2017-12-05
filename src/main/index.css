@@ -35,7 +35,19 @@ christmasxp-yolohero-main button {
   background: #0822f3;
   border: none;
   cursor: pointer;
-  box-shadow: -5px -5px 0px #FF1AE9;
+  box-shadow: -5px -5px 0px #5aff79;
+  transition-property: box-shadow, transform;
+  transition-duration: .2s;
+}
+
+christmasxp-yolohero-main button:hover {
+  transform: translate(-3px, -3px);
+  box-shadow: -3px -3px 0px #5aff79;
+}
+
+christmasxp-yolohero-main button:active {
+  transform: translate(-7px, -7px);
+  box-shadow: none;
 }
 
 christmasxp-yolohero-main button:disabled {
