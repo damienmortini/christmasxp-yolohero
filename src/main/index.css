@@ -61,7 +61,10 @@ christmasxp-yolohero-main h3 {
   font-size: 50px;
 }
 
-christmasxp-yolohero-main p,
+christmasxp-yolohero-main p {
+  margin: .2em 0;
+}
+
 christmasxp-yolohero-main button {
   margin: .5em 0;
 }
