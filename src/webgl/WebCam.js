@@ -311,8 +311,8 @@ export default class WebCam {
     this.gl.enable(this.gl.CULL_FACE);
     this.gl.enable(this.gl.DEPTH_TEST);
 
-    this._animationFrameId = requestAnimationFrame(() => {
-      cancelAnimationFrame(this._animationFrameId);
+    // this._animationFrameId = requestAnimationFrame(() => {
+    //   cancelAnimationFrame(this._animationFrameId);
       this.frameBuffers[4].bind();
   
       let motionRatio = 0;
@@ -325,7 +325,7 @@ export default class WebCam {
       this.motionRatio += (motionRatio - this.motionRatio) * .1;
   
       this.frameBuffers[4].unbind();
-    });
+    // });
   }
 
   get frameTexture() {

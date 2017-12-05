@@ -88,7 +88,7 @@ christmasxp-yolohero-main christmasxp-yolohero-player {
   opacity: 1;
   transition-property: transform, opacity;
   transition-duration: 1s;
-  visibility: hidden;
+  /* visibility: hidden; */
 }
 
 christmasxp-yolohero-main christmasxp-yolohero-player:hover {
