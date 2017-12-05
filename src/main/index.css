@@ -2,6 +2,7 @@
 @import "../player/index.css";
 @import "../intro/index.css";
 @import "../outro/index.css";
+@import "../fallback/index.css";
 
 @import url('https://fonts.googleapis.com/css?family=Raleway:400,900');
 
@@ -104,6 +105,7 @@ christmasxp-yolohero-main christmasxp-yolohero-ui {
   height: 100%;
 }
 
+christmasxp-yolohero-main christmasxp-yolohero-fallback,
 christmasxp-yolohero-main christmasxp-yolohero-intro,
 christmasxp-yolohero-main christmasxp-yolohero-outro {
   position: absolute;

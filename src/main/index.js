@@ -1,5 +1,6 @@
 import "@webcomponents/custom-elements";
 
+import Environment from "dlib/utils/Environment.js";
 import Loader from "dlib/utils/Loader.js";
 import Sound from "dlib/audio/Sound.js";
 import LoopElement from "dlib/customelements/LoopElement.js";
@@ -8,6 +9,7 @@ import "../intro/index.js";
 import "../outro/index.js";
 import "../webgl/index.js";
 import "../player/index.js";
+import "../fallback/index.js";
 
 import ActionsDetector from "./ActionsDetector.js";
 import Sounds from "./Sounds.js";
@@ -26,6 +28,11 @@ Loader.load([
   template.innerHTML = templateHTML;
   window.customElements.define("christmasxp-yolohero-main", class extends LoopElement {
     connectedCallback() {
+      if(Environment.mobile || !window.WebGL2RenderingContext) {
+        this.innerHTML = "<christmasxp-yolohero-fallback></christmasxp-yolohero-fallback>";
+        return;
+      }
+
       super.connectedCallback();
 
       let templateClone = document.importNode(template.content, true);

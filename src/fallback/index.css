@@ -1,0 +1,30 @@
+christmasxp-yolohero-fallback {
+  display: flex;
+  position: relative;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  padding: 5%;
+  box-sizing: border-box;
+  text-align: center;
+  background: #ff22e0;
+}
+
+christmasxp-yolohero-fallback .logo {
+  box-sizing: border-box;
+  width: 100%;
+  height: 50%;
+  margin-bottom: 3em;
+  background-image: url(../intro/logo/logo5.svg);
+  background-repeat: no-repeat;
+  background-size: contain;
+  background-position: center;
+}
+
+christmasxp-yolohero-fallback.features .mobile {
+  display: none;
+}
+
+christmasxp-yolohero-fallback.mobile .features {
+  display: none;
+}
