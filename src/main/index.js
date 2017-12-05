@@ -16,7 +16,12 @@ import GUI from "dlib/gui/GUI.js";
 
 GUI.visible = /\bgui\b/.test(window.location.search);
 
-Loader.load(["src/main/template.html", "src/calgary_script.woff2"]).then(([templateHTML]) => {
+Loader.load([
+  "src/main/template.html",
+  "src/intro/template.html",
+  "src/outro/template.html",
+  "src/player/template.html",
+  "src/calgary_script.woff2"]).then(([templateHTML]) => {
   let template = document.createElement("template");
   template.innerHTML = templateHTML;
   window.customElements.define("christmasxp-yolohero-main", class extends LoopElement {
@@ -30,7 +35,6 @@ Loader.load(["src/main/template.html", "src/calgary_script.woff2"]).then(([templ
 
       this.intro = document.querySelector("christmasxp-yolohero-intro");
       this.outro = document.querySelector("christmasxp-yolohero-outro");
-
       this.player = document.querySelector("christmasxp-yolohero-player");
       
       this._actionsDetector = new ActionsDetector({

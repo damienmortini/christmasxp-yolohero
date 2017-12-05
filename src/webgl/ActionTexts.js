@@ -189,7 +189,7 @@ export default class ActionTexts {
               Light(vec3(1.), vec3(0.), vec3(-1.), .9),
               vPosition,
               vNormal,
-              PhysicallyBasedMaterial(diffuse, 0., pattern, 1. - textTexel.a * .8)
+              PhysicallyBasedMaterial(diffuse, 0., pattern, 1.)
               // PhysicallyBasedMaterial(diffuse * (1. - textTexel.a), pattern * .2, (1. - pattern), 1. - textTexel.a * .8)
               // PhysicallyBasedMaterial(diffuse * (1. - textTexel.a), 0., 1., 0.)
             );
