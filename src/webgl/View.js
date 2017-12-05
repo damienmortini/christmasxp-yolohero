@@ -23,10 +23,6 @@ const CAMERA_CONTROLLER = GUI.add({value: false}, "value", {label: "Camera Contr
 const QUATERNION = new Quaternion();
 const VECTOR3 = new Vector3();
 
-const COLORS = [
-
-]
-
 export default class View {
   constructor({
     gl,
@@ -41,7 +37,7 @@ export default class View {
     this._pointer = Pointer.get();
     this._cameraRotation = new Vector2();
     
-    this._cameraTiltMaxAngle = .2;
+    this._cameraTiltMaxAngle = .05;
     this._cameraTiltEasing = .02;
 
     this.gl.clearColor(1, 1, 1, 1);    

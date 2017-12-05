@@ -61,12 +61,12 @@ export default class ActionsDetector {
     let motion = false;
 
     if(this.webcam) {
-      sound = this.webcam.volume > .4;
+      sound = this.webcam.volume > .3;
       if(sound) {
         this.onAction.dispatch({type: "sound"});
       }
       
-      motion = this.webcam.motionRatio > 1;
+      motion = this.webcam.motionRatio > .5;
       if(motion) {
         this.onAction.dispatch({type: "motion"});
       }
