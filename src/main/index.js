@@ -78,7 +78,7 @@ Loader.load(["src/main/template.html", "src/calgary_script.woff2"]).then(([templ
         });
         TweenLite.to(this.player, 1, {
           volume: 1,
-          delay: 1
+          delay: .5
         });
         return;
       }
