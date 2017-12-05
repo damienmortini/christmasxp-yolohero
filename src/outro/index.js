@@ -28,7 +28,7 @@ Loader.load("src/outro/template.html").then((templateHTML) => {
         const score = this.querySelector(".score");
         this.querySelector("textarea").value = `I’ve done a score of ${this._score} at Yolo Hero! 🚀 🎹 ✨ 🤘 ☃️
 Can you do better???
-Merry Christmas!!!
+Merry Christmas from Christmas Experiments!!!
 ${window.location}
 
 by @damienmortini & @lonni_laura
