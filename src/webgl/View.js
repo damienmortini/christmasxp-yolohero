@@ -11,6 +11,7 @@ import ActionTexts from "./ActionTexts.js";
 import MainText from "./MainText.js";
 import Ground from "./Ground.js";
 import ScoreText from "./ScoreText.js";
+import ActionCubes from "./ActionCubes.js";
 import GLTexture from "dlib/gl/GLTexture.js";
 import Vector2 from "dlib/math/Vector2.js";
 import Quaternion from "dlib/math/Quaternion.js";
@@ -88,7 +89,7 @@ export default class View {
       actionsDetector,
       noiseTexture: this._noiseTexture
     });
-    this.mainText.transform.y = 3;
+    this.mainText.transform.y = 2.5;
 
     this.ground = new Ground({
       gl: this.gl,
@@ -103,7 +104,17 @@ export default class View {
     this.scoreText = new ScoreText({
       gl: this.gl
     });
-    this.scoreText.transform.setPosition([5, 0, 0]);
+    this.scoreText.transform.setPosition([0, 4.5, 0]);
+
+    this.actionCubes = new ActionCubes({
+      gl: this.gl,
+      webcam: this.webcam,
+      noiseTexture: this._noiseTexture,
+      actionsDetector
+    });
+    this.actionCubes.transform.rotateX(.1);
+    this.actionCubes.transform.y = -2.3;
+    this.actionCubes.transform.z = 2.8;
   }
 
   resize({width, height}) {
@@ -145,6 +156,10 @@ export default class View {
     });
 
     this.actionTexts.draw({
+      camera: this.camera
+    });
+
+    this.actionCubes.draw({
       camera: this.camera
     });
 

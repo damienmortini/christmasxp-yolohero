@@ -15,7 +15,7 @@ export default class ScoreText extends GLText {
       textAlign: "center",
       textContent: "0",
       fillStyle: COLORS[5],
-      font: `${50 * window.devicePixelRatio}px calgary_script`,
+      font: `${80 * window.devicePixelRatio}px calgary_script`,
       paddingPercentageWidth: .2,
       paddingPercentageHeight: .2,
       offsetYPercentage: window.chrome ? .2 : 0

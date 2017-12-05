@@ -111,7 +111,7 @@ export default class ActionTexts {
   
           void main() {
             vec3 position = position;
-            position.y *= 1. - max(-success, 0.);
+            position.y *= 1. - max(-success - .2, 0.);
             gl_Position = camera.projectionView * transform * vec4(position, 1.);
             vGLPosition = gl_Position;
             vPosition = position;
@@ -195,7 +195,7 @@ export default class ActionTexts {
             );
 
             // color = mix(vec3(1.), diffuse, pattern);
-            color *= min(1., 1. + success);
+            color *= min(1., 1. + success + .5);
 
             fragColor.rgb = color;
             fragColor.rgb *= .2 + (1. - textTexel.a) * .8;
