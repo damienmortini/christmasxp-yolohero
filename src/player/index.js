@@ -50,13 +50,15 @@ Loader.load("src/player/template.html").then((templateHTML) => {
       this.bpm = 0;
       this.currentTime = 0;
       this.action = {
-        time: -1
+        time: 0
       };
 
       this._previousBeatTime = 0;
       this._currentSliceStartTime = 0;
       this._currentSlice = null;
 
+      this._volume = 1;
+      this._globalVolume = 1;
 
       // this._previousKeyboardBeatTime = 0;
       // Keyboard.addEventListener("keydown", () => {
@@ -134,11 +136,20 @@ Loader.load("src/player/template.html").then((templateHTML) => {
     set volume(value) {
       value = MUTE ? 0 : value;
       this._volume = value;
-      this._player.volume = value;
+      this._player.volume = this._volume * this._globalVolume;
     }
 
     get volume() {
       return this._volume;
+    }
+
+    set globalVolume(value) {
+      this._globalVolume = value;
+      this.volume = this.volume;
+    }
+
+    get globalVolume() {
+      return this._globalVolume;
     }
 
     get actions() {
@@ -173,9 +184,11 @@ Loader.load("src/player/template.html").then((templateHTML) => {
 
       this.currentTime = currentTime - START_TIME;
 
+      this.currentTime = Math.max(this.currentTime, 0);
+
       for (let i = 0; i < this.actions.length; i++) {
         const action = this.actions[i];
-        if(action.time >= this.action.time && action.time < this.currentTime && this.action !== action) {
+        if(action.time >= this.action.time && action.time <= this.currentTime && this.action !== action) {
           this.action = action;
           this.onActionChange.dispatch({
             action: this.action

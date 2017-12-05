@@ -56,10 +56,10 @@ Loader.load(["src/main/template.html", "src/calgary_script.woff2"]).then(([templ
       this.intro.addEventListener("close", () => {
         this.player.load().then(() => {
           this.player.play();
-          TweenLite.fromTo(this.player, 2, {
-            volume: 0
+          TweenLite.fromTo(this.player, 5, {
+            globalVolume: 0
           }, {
-            volume: 1
+            globalVolume: 1
           });
         });
       });
@@ -72,7 +72,6 @@ Loader.load(["src/main/template.html", "src/calgary_script.woff2"]).then(([templ
 
     onActionComplete({action}) {
       if(!action.success) {
-        TweenLite.killTweensOf(this.player);
         TweenLite.to(this.player, .2, {
           volume: .3
         });

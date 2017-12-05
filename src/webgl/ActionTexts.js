@@ -198,7 +198,7 @@ export default class ActionTexts {
             color *= min(1., 1. + success);
 
             fragColor.rgb = color;
-            // fragColor.rgb += textTexel.rgb * textTexel.a;
+            fragColor.rgb *= .2 + (1. - textTexel.a) * .8;
             fragColor.a = opacity;
             fragColor.a = 1.;
 
@@ -220,7 +220,7 @@ export default class ActionTexts {
         textAlign: "center",
         textContent: "",
         fillStyle: "white",
-        font: "40px calgary_script",
+        font: "40px 'Raleway', sans-serif",
         offsetYPercentage: window.chrome ? .2 : -.2,
         paddingPercentageWidth: .2,
         paddingPercentageHeight: .2
@@ -277,6 +277,7 @@ export default class ActionTexts {
 
     this._texturesData = new Map();
     this._socles = new Map();
+    this._texts = new Map();
 
     for (let [type, data] of TYPES_DATA) {
       const texture = new GLTexture({
@@ -285,7 +286,7 @@ export default class ActionTexts {
         wrapS: this.gl.CLAMP_TO_EDGE,
         wrapT: this.gl.CLAMP_TO_EDGE,
       });
-      DEFAULT_TEXT.textContent = data.text;
+      DEFAULT_TEXT.textContent = data.text.toUpperCase();
       texture.data = DEFAULT_TEXT._canvas;
       this._texturesData.set(type, {
         texture,
