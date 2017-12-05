@@ -43,7 +43,7 @@ Loader.load("src/intro/template.html").then((templateHTML) => {
     set loading(value) {
       const button = this.querySelector("button");
       button.disabled = value;
-      button.textContent = value ? "loading..." : "play!";
+      button.textContent = value ? "loading..." : "Play! ☃️";
     }
 
     update() {

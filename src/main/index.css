@@ -9,13 +9,20 @@ christmasxp-yolohero-main {
   display: block;
   position: relative;
   font-family: "Raleway", sans-serif;
+  color: #26293d;
 }
 
 christmasxp-yolohero-main *:focus {
   outline:none;
 }
 
+christmasxp-yolohero-main h2 {
+  /* color: #FF1AE9;
+  text-shadow: -5px -5px 0px #0822f3; */
+}
+
 christmasxp-yolohero-main h2,
+christmasxp-yolohero-main h3,
 christmasxp-yolohero-main button {
   font-family: "calgary_script";
 }
@@ -25,10 +32,10 @@ christmasxp-yolohero-main button {
   padding: .1em .5em;
   /* color: #0822f3; */
   color: white;
-  background: #FF1AE9;
+  background: #0822f3;
   border: none;
   cursor: pointer;
-  box-shadow: -5px -5px 0px #0822f3;
+  box-shadow: -5px -5px 0px #FF1AE9;
 }
 
 christmasxp-yolohero-main button:disabled {
@@ -37,7 +44,8 @@ christmasxp-yolohero-main button:disabled {
   box-shadow: 1;
 }
 
-christmasxp-yolohero-main h2 {
+christmasxp-yolohero-main h2,
+christmasxp-yolohero-main h3 {
   font-size: 50px;
 }
 
