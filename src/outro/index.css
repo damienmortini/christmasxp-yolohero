@@ -32,10 +32,6 @@ christmasxp-yolohero-outro textarea::selection {
   background: #ff22e0;
 }
 
-christmasxp-yolohero-outro textarea:focus {
-  outline:none;
-}
-
 christmasxp-yolohero-outro.hide {
   opacity: 0;
   visibility: hidden;

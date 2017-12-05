@@ -26,14 +26,14 @@ const TYPES_DATA = new Map([
     position: -3,
     text: "Move mouse!",
     uvOffset: [0, 0],
-    color: hexToRGB(COLORS[0])
+    color: hexToRGB(COLORS[4])
   }],
   ["keyboard", {
     rotation: 0,
     position: -1,
     text: "Press keyboard!",
     uvOffset: [.5, 0],
-    color: hexToRGB(COLORS[1])
+    color: hexToRGB(COLORS[3])
   }],
   ["motion", {
     rotation: 0,
@@ -47,7 +47,7 @@ const TYPES_DATA = new Map([
     position: 3,
     text: "Shout/clap!",
     uvOffset: [.5, .5],
-    color: hexToRGB(COLORS[3])
+    color: hexToRGB(COLORS[1])
   }]
 ]);
 
@@ -220,7 +220,7 @@ export default class ActionTexts {
         textAlign: "center",
         textContent: "",
         fillStyle: "white",
-        font: "40px Shrikhand-Regular",
+        font: "40px calgary_script",
         offsetYPercentage: window.chrome ? .2 : -.2,
         paddingPercentageWidth: .2,
         paddingPercentageHeight: .2

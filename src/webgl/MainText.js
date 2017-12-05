@@ -4,6 +4,7 @@ import GLTexture from "dlib/gl/GLTexture.js";
 import NoiseShader from "dlib/shaders/NoiseShader.js";
 import Matrix4 from "dlib/math/Matrix4.js";
 import Vector4 from "dlib/math/Vector4.js";
+import { COLORS } from "./colors.js";
 
 const SUCCESS_WORDS = [
   "Amazing!",
@@ -40,9 +41,9 @@ export default class MainText extends GLText {
       gl,
       textAlign: "center",
       textContent: "",
-      // fillStyle: "white",
+      fillStyle: COLORS[5],
       textScale: 1 / window.devicePixelRatio,
-      font: `${50 * window.devicePixelRatio}px Shrikhand-Regular`,
+      font: `${50 * window.devicePixelRatio}px calgary_script`,
       paddingPercentageWidth: .2,
       paddingPercentageHeight: .2,
       offsetYPercentage: window.chrome ? .2 : 0

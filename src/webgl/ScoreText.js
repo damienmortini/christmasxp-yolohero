@@ -3,6 +3,7 @@ import GLText from "dlib/gl/GLText.js";
 import GLTexture from "dlib/gl/GLTexture.js";
 import Matrix4 from "dlib/math/Matrix4.js";
 import Vector4 from "dlib/math/Vector4.js";
+import { COLORS } from "./colors.js";
 
 export default class ScoreText extends GLText {
   constructor({
@@ -13,8 +14,8 @@ export default class ScoreText extends GLText {
       textScale: 1 / window.devicePixelRatio,
       textAlign: "center",
       textContent: "0",
-      // fillStyle: "white",
-      font: `${50 * window.devicePixelRatio}px Shrikhand-Regular`,
+      fillStyle: COLORS[5],
+      font: `${50 * window.devicePixelRatio}px calgary_script`,
       paddingPercentageWidth: .2,
       paddingPercentageHeight: .2,
       offsetYPercentage: window.chrome ? .2 : 0

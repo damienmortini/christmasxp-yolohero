@@ -16,7 +16,7 @@ import GUI from "dlib/gui/GUI.js";
 
 GUI.visible = /\bgui\b/.test(window.location.search);
 
-Loader.load(["src/main/template.html", "src/Shrikhand-Regular.ttf"]).then(([templateHTML]) => {
+Loader.load(["src/main/template.html", "src/calgary_script.woff2"]).then(([templateHTML]) => {
   let template = document.createElement("template");
   template.innerHTML = templateHTML;
   window.customElements.define("christmasxp-yolohero-main", class extends LoopElement {

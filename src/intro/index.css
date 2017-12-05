@@ -4,7 +4,7 @@ christmasxp-yolohero-intro {
   align-items: center;
   justify-content: center;
   flex-direction: column;
-  background: #0822f3;
+  background: rgba(255, 255, 255, .8);
   transition-duration: .4s;
   transition-property: opacity, visibility;
 }
@@ -12,8 +12,8 @@ christmasxp-yolohero-intro {
 christmasxp-yolohero-intro .logo {
   width: 80%;
   height: 50%;
-  margin: 5%;
-  background-image: url(./logo/1.svg);
+  margin: 1em;
+  background-image: url(./logo/logo2.svg);
   background-repeat: no-repeat;
   background-size: contain;
   background-position: center;
@@ -25,5 +25,5 @@ christmasxp-yolohero-intro.hide {
 }
 
 .warning {
-  color: #ffa575;
+  color: #FF1AE9;
 }

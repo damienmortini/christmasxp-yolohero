@@ -3,19 +3,38 @@
 @import "../intro/index.css";
 @import "../outro/index.css";
 
+@import url('https://fonts.googleapis.com/css?family=Raleway:400,900');
+
 christmasxp-yolohero-main {
   display: block;
   position: relative;
+  font-family: "Raleway", sans-serif;
+}
+
+christmasxp-yolohero-main *:focus {
+  outline:none;
 }
 
 christmasxp-yolohero-main h2,
 christmasxp-yolohero-main button {
-  font-family: "Shrikhand-Regular";
+  font-family: "calgary_script";
 }
 
 christmasxp-yolohero-main button {
   font-size: 50px;
   padding: .1em .5em;
+  /* color: #0822f3; */
+  color: white;
+  background: #FF1AE9;
+  border: none;
+  cursor: pointer;
+  box-shadow: -5px -5px 0px #0822f3;
+}
+
+christmasxp-yolohero-main button:disabled {
+  background: #ccc;
+  box-shadow: -5px -5px 0px #444;
+  box-shadow: 1;
 }
 
 christmasxp-yolohero-main h2 {

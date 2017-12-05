@@ -64,7 +64,7 @@ export default class Background {
       fragmentShader: `#version 300 es
         precision highp float;
 
-        uniform vec3 colors[3];
+        uniform vec3 colors[4];
 
         uniform vec2 resolution;
         uniform float motion;
@@ -89,13 +89,8 @@ export default class Background {
           pbrReflectionFromRay: `
             vec3 envMapTexel = texture(envMap, ray.direction.xy * .5 + .5).rgb;
             float grey = (envMapTexel.r + envMapTexel.g + envMapTexel.b) / 3.;
-
-            vec3 rainbow = mix(colors[0], colors[1], smoothstep(0., .33, grey));
-            rainbow = mix(rainbow, colors[2], smoothstep(.33, .66, grey));
-
             vec3 color = .95 + vec3(grey) * .05;
-
-            color = mix(color, rainbow, min(motion, 1.));
+            color = mix(color, envMapTexel, min(motion, 1.));
 
             // return .8 + vec3(step(.5, grey)) * .2;
             // return clamp(color, vec3(0.), vec3(1.));
@@ -115,12 +110,12 @@ export default class Background {
         void main() {
           float roughness = 1. - smoothstep(0., .5, pow(vUv.y, 2.));
 
-          vec4 bump = bumpFromDepth(webcamTexture, vUv, resolution * .01, .1 + .2 * motion);
-          bump = mix(bump, vec4(vNormal, 0.), roughness);
+          float center = step(abs(vUv.x * 2. - 1.) + .0005, 5. / 58.) * roughness;
+
+          vec4 bump = bumpFromDepth(webcamTexture, vUv, resolution * .01, .1 + .2 * motion + center * .2);
+          bump = mix(bump, vec4(vNormal, 0.), (roughness + center) * .5);
 
           vec3 normal = normalize(vNormal + bump.xyz);
-
-          float center = step(abs(vUv.x * 2. - 1.) + .0005, 5. / 58.) * roughness;
 
           // float displacementRatio = volume * pow(1. - abs(vUv.y * 2. - 1.), 1.);
           // float volumeDisplacement = cos(vUv.y * 40. + time * 10. + vUv.x * 3.14) * displacementRatio * .5;
@@ -133,7 +128,7 @@ export default class Background {
           vec3 diffuse = vec3(1.);
           // diffuse *= clamp(black + (1. - vUv.y), 0., 1.);
           black += center;
-          diffuse *= black;
+          diffuse = mix(colors[3], diffuse, black);
 
           vec3 color = computePBRLighting(
             Ray(vec3(0., 0., 1.), normalize(vec3(vPosition, -1.))), 
@@ -171,6 +166,7 @@ export default class Background {
       hexToRGB(COLORS[1]),
       hexToRGB(COLORS[2]),
       hexToRGB(COLORS[3]),
+      hexToRGB(COLORS[5]),
     ]);
   }
 
