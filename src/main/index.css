@@ -17,6 +17,10 @@ christmasxp-yolohero-main *:focus {
   outline:none;
 }
 
+christmasxp-yolohero-main a {
+  color: inherit;
+}
+
 christmasxp-yolohero-main h2 {
   /* color: #FF1AE9;
   text-shadow: -5px -5px 0px #0822f3; */
