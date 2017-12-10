@@ -70,12 +70,14 @@ Loader.load([
 
         this.intro.addEventListener("close", () => {
           this.player.load().then(() => {
-            this.player.play();
-            TweenLite.fromTo(this.player, 5, {
-              globalVolume: 0
-            }, {
-              globalVolume: Environment.mobile ? .1 : 1
-            });
+            setTimeout(() => {
+              this.player.play();
+              TweenLite.fromTo(this.player, 5, {
+                globalVolume: 0
+              }, {
+                globalVolume: Environment.mobile ? .1 : 1
+              });
+            }, 500);
           });
         });
       } catch (error) {
