@@ -8,10 +8,12 @@ christmasxp-yolohero-outro {
   transition-duration: .4s;
   transition-property: opacity, visibility;
   text-align: center;
+  overflow: auto;
 }
 
 .content {
   max-width: 90%;
+  max-height: 90%;
   perspective: 500px;
 }
 
@@ -33,7 +35,6 @@ christmasxp-yolohero-main h2.score {
 christmasxp-yolohero-outro .share {
   cursor: pointer;
   border-radius: 5px;
-  margin: 1em 0;
   position: relative;
   background: #0d2fe9;
   box-shadow: -5px -5px 0px #e7fc73;

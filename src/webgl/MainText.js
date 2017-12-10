@@ -1,4 +1,5 @@
 import "gsap/TweenLite.js";
+import Environment from "dlib/utils/Environment.js";
 import GLText from "dlib/gl/GLText.js";
 import GLTexture from "dlib/gl/GLTexture.js";
 import NoiseShader from "dlib/shaders/NoiseShader.js";
@@ -100,15 +101,22 @@ export default class MainText extends GLText {
       data = [data]
     }
     if(data[0]) {
+      let text = "";
+      const texts = data[0].split("/");
+      if(Environment.mobile && texts.length > 1) {
+        text = texts[1];
+      } else {
+        text = texts[0];
+      }
       this._scale = data[1] || 1;
-      this.textContent = data[0];
+      this.textContent = text;
       this._scale = 1;
     }
   }
 
   set textContent(value) {
     super.textContent = value;
-    const scale = Math.min(1, 1000 / this._canvas.width) * (this._scale || 1);
+    const scale = Math.min(1, (Environment.mobile ? 700 : 1000) / this._canvas.width) * (this._scale || 1);
     TweenLite.killTweensOf(this);
     TweenLite.fromTo(this, .2, {
       _tweenedScale: 0

@@ -17,6 +17,7 @@ import Vector2 from "dlib/math/Vector2.js";
 import Quaternion from "dlib/math/Quaternion.js";
 import Vector3 from "dlib/math/Vector3.js";
 import GUI from "dlib/gui/GUI.js";
+import Environment from "dlib/utils/Environment.js";
 
 const CAMERA_CONTROLLER = GUI.add({value: false}, "value", {label: "Camera Controller", reload: true}).value;
 
@@ -142,7 +143,8 @@ export default class View {
       this.camera.transform.fromQuaternion(QUATERNION);
       VECTOR3.set(0, 0, 1);
       VECTOR3.applyMatrix4(this.camera.transform);
-      this.camera.transform.setPosition(VECTOR3.scale(10));
+      this.camera.transform.setPosition(VECTOR3.scale(Environment.mobile ? 15 : 10));
+      this.camera.transform.y = Environment.mobile ? 2.5 : 0;
     }
     
     this.gl.enable(this.gl.DEPTH_TEST);

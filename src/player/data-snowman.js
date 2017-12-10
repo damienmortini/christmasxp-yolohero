@@ -12,7 +12,7 @@ export default {
 };
 
 MAIN.push(
-  ["", ["Move your mouse", 2]],
+  ["", ["Move your mouse/Shake your phone", 2]],
   [""],
   [""],
   [""],
@@ -22,7 +22,7 @@ MAIN.push(
   ["mouse"],
   ["mouse"],
   [""],
-  ["", ["Now press any key on your keyboard", 2]],
+  ["", ["Now press any key on your keyboard/Tap on your screen", 2]],
   [""],
   [""],
   [""],

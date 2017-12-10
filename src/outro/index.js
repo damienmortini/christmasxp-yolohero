@@ -13,6 +13,10 @@ Loader.load("src/outro/template.html").then((templateHTML) => {
 
       let templateClone = document.importNode(template.content, true);
       this.appendChild(templateClone);
+
+      this.querySelector("button").addEventListener("click", () => {
+        window.location.reload();
+      });
     }
 
     set score(value) {
@@ -22,7 +26,7 @@ Loader.load("src/outro/template.html").then((templateHTML) => {
     set visible(value) {
       this.classList.toggle("hide", !value);
       if(value && this._score !== undefined) {
-        this.querySelector(".content").innerHTML += `
+        this.querySelector(".iframe").innerHTML += `
         <iframe id="soundcloud-player" scrolling="no" frameborder="no" src="https://w.soundcloud.com/player/?url=https%3A//api.soundcloud.com/tracks/129924353&amp;color=%23ffcf24&amp;auto_play=false&amp;hide_related=false&amp;show_comments=true&amp;show_user=true&amp;show_reposts=false&amp;show_teaser=true&amp;visual=true"></iframe>
         `;
         const score = this.querySelector(".score");

@@ -28,13 +28,10 @@ Loader.load([
   template.innerHTML = templateHTML;
   window.customElements.define("christmasxp-yolohero-main", class extends LoopElement {
     connectedCallback() {
-      if(Environment.mobile) {
-        this.innerHTML = "<christmasxp-yolohero-fallback></christmasxp-yolohero-fallback>";
-        return;
-      }
-
+      try {
+        
       super.connectedCallback();
-
+      
       let templateClone = document.importNode(template.content, true);
       this.appendChild(templateClone);
 
@@ -70,10 +67,14 @@ Loader.load([
           TweenLite.fromTo(this.player, 5, {
             globalVolume: 0
           }, {
-            globalVolume: 1
+            globalVolume: Environment.mobile ? .1 : 1
           });
         });
       });
+      } catch (error) {
+        this.pause();
+        this.innerHTML = "<christmasxp-yolohero-fallback></christmasxp-yolohero-fallback>";
+      }
     }
 
     onPlayerEnded() {

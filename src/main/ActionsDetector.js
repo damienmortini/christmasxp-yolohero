@@ -1,6 +1,8 @@
 import Signal from "dlib/utils/Signal.js";
 import Keyboard from "dlib/input/Keyboard.js";
 import Pointer from "dlib/input/Pointer.js";
+import Environment from "dlib/utils/Environment.js";
+import Vector3 from "dlib/math/Vector3.js";
 
 export default class ActionsDetector {
   constructor({
@@ -17,7 +19,18 @@ export default class ActionsDetector {
     this.onAction = new Signal();
     this.onActionComplete = new Signal();
 
-    Keyboard.addEventListener("keydown", this.onKeyDown.bind(this));
+    this._shaking = false;
+
+    window.addEventListener(Environment.mobile ? "touchstart" : "keydown", this.onKeyDown.bind(this));
+    if(Environment.mobile) {
+      const previousVector3 = new Vector3();
+      const vector3 = new Vector3();
+      window.addEventListener("deviceorientation", (e) => {
+        vector3.set(e.alpha, e.beta, e.gamma);
+        this._shaking = vector3.distance(previousVector3) > 5;
+        previousVector3.copy(vector3);
+      });
+    }
     this._pointer.onDown.add(this.onPointerDown.bind(this));
   }
 
@@ -61,7 +74,7 @@ export default class ActionsDetector {
     let motion = false;
 
     if(this.webcam) {
-      sound = this.webcam.volume > .3;
+      sound = this.webcam.volume > .03;
       if(sound) {
         this.onAction.dispatch({type: "sound"});
       }
@@ -72,7 +85,7 @@ export default class ActionsDetector {
       }
     }
     
-    const pointerMove = this._pointer.velocity.x && this._pointer.velocity.y;
+    const pointerMove = Environment.mobile ? this._shaking : this._pointer.velocity.x && this._pointer.velocity.y;
     if(pointerMove) {
       this.onAction.dispatch({type: "mouse"});
     }

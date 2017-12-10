@@ -14,6 +14,7 @@ import CameraShader from "dlib/shaders/CameraShader.js";
 import NoiseShader from "dlib/shaders/NoiseShader.js";
 import { COLORS } from "./colors.js";
 import "gsap/TweenLite";
+import Environment from "dlib/utils/Environment.js";
 
 let DEFAULT_TEXT;
 
@@ -24,28 +25,28 @@ const TYPES_DATA = new Map([
   ["mouse", {
     rotation: 0,
     position: -3,
-    text: "Move mouse!",
+    text: Environment.mobile ? "Shake" : "Move mouse",
     uvOffset: [0, 0],
     color: hexToRGB(COLORS[4])
   }],
   ["keyboard", {
     rotation: 0,
     position: -1,
-    text: "Press keyboard!",
+    text: Environment.mobile ? "Tap" : "Press keyboard",
     uvOffset: [.5, 0],
     color: hexToRGB(COLORS[3])
   }],
   ["motion", {
     rotation: 0,
     position: 1,
-    text: "Dance!",
+    text: "Dance",
     uvOffset: [0, .5],
     color: hexToRGB(COLORS[2])
   }],
   ["sound", {
     rotation: 0,
     position: 3,
-    text: "Shout/clap!",
+    text: "Shout/clap",
     uvOffset: [.5, .5],
     color: hexToRGB(COLORS[1])
   }]
@@ -220,7 +221,7 @@ export default class ActionTexts {
         textAlign: "center",
         textContent: "",
         fillStyle: "white",
-        font: "40px 'Raleway', sans-serif",
+        font: "bold 40px 'Raleway', sans-serif",
         offsetYPercentage: window.chrome ? .2 : -.2,
         paddingPercentageWidth: .2,
         paddingPercentageHeight: .2
@@ -323,7 +324,7 @@ export default class ActionTexts {
     if(!actionObject) {
       return;
     }
-    TweenLite.to(actionObject, .2, {
+    TweenLite.to(actionObject, action.success ? .1 : .2, {
       success: action.success ? 1 : -1
     });
   }

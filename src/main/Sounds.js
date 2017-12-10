@@ -1,5 +1,6 @@
 import Sound from "dlib/audio/Sound.js";
 import GUI from "dlib/gui/GUI.js";
+import Environment from "dlib/utils/Environment.js";
 
 GUI.add(Sound, "muted", {label: "Mute Sounds"});
 
@@ -30,16 +31,20 @@ const FAIL_SOUNDS = [
 
 export default class Sounds {
   constructor({actionsDetector}) {
+    const amplification = Environment.mobile ? .1 : 1;
+
     for (let soundName of FAIL_SOUNDS) {
       new Sound({
-        src: `src/main/sounds/fail/${soundName}.mp3`
+        src: `src/main/sounds/fail/${soundName}.mp3`,
+        amplification
       });
     }
 
     for (let soundName of SUCCESS_SOUNDS) {
       new Sound({
         src: `src/main/sounds/success/${soundName}.mp3`,
-        volume: .3
+        volume: .3,
+        amplification
       });
     }
 

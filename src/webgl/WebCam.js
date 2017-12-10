@@ -22,6 +22,7 @@ export default class WebCam {
     document.body.appendChild(this.video);
     this.video.style.position = "absolute";
     this.video.style.top = "0";
+    this.video.style.pointerEvents = "none";
     this.video.style.opacity = "0";
 
     this.motionRatio = 0;
