@@ -29,51 +29,59 @@ Loader.load([
   window.customElements.define("christmasxp-yolohero-main", class extends LoopElement {
     connectedCallback() {
       try {
+        super.connectedCallback();
         
-      super.connectedCallback();
-      
-      let templateClone = document.importNode(template.content, true);
-      this.appendChild(templateClone);
+        let templateClone = document.importNode(template.content, true);
+        this.appendChild(templateClone);
 
-      this.score = 0;
+        this.score = 0;
 
-      this.intro = document.querySelector("christmasxp-yolohero-intro");
-      this.outro = document.querySelector("christmasxp-yolohero-outro");
-      this.player = document.querySelector("christmasxp-yolohero-player");
-      
-      this._actionsDetector = new ActionsDetector({
-        player: this.player
-      });
-      this._actionsDetector.onActionComplete.add(this.onActionComplete.bind(this));
-      
-      this.webgl = document.querySelector("christmasxp-yolohero-webgl");
-      this.webgl.player = this.player;
-      this.webgl.actionsDetector = this._actionsDetector;
+        this.intro = document.querySelector("christmasxp-yolohero-intro");
+        this.outro = document.querySelector("christmasxp-yolohero-outro");
+        this.player = document.querySelector("christmasxp-yolohero-player");
+        
+        this._actionsDetector = new ActionsDetector({
+          player: this.player
+        });
+        this._actionsDetector.onActionComplete.add(this.onActionComplete.bind(this));
+        
+        this.webgl = document.querySelector("christmasxp-yolohero-webgl");
+        this.webgl.player = this.player;
+        this.webgl.actionsDetector = this._actionsDetector;
 
-      new Sounds({
-        actionsDetector: this._actionsDetector
-      });
+        new Sounds({
+          actionsDetector: this._actionsDetector
+        });
 
-      Promise.all([this.player.load(), this.webgl.load()])
-      .then(() => {
-        this._actionsDetector.webcam = this.webgl.webcam;
-        this.intro.loading = false;
-        this.player.addEventListener("ended", this.onPlayerEnded.bind(this))
-      });
-
-      this.intro.addEventListener("close", () => {
         this.player.load().then(() => {
-          this.player.play();
-          TweenLite.fromTo(this.player, 5, {
-            globalVolume: 0
-          }, {
-            globalVolume: Environment.mobile ? .1 : 1
+          console.log("Player loaded");
+        });
+        
+        this.webgl.load().then(() => {
+          console.log("WebGL loaded");
+        });
+
+        Promise.all([this.player.load(), this.webgl.load()])
+        .then(() => {
+          this._actionsDetector.webcam = this.webgl.webcam;
+          this.intro.loading = false;
+          this.player.addEventListener("ended", this.onPlayerEnded.bind(this))
+        });
+
+        this.intro.addEventListener("close", () => {
+          this.player.load().then(() => {
+            this.player.play();
+            TweenLite.fromTo(this.player, 5, {
+              globalVolume: 0
+            }, {
+              globalVolume: Environment.mobile ? .1 : 1
+            });
           });
         });
-      });
       } catch (error) {
         this.pause();
         this.innerHTML = "<christmasxp-yolohero-fallback></christmasxp-yolohero-fallback>";
+        console.error(error);
       }
     }
 

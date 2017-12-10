@@ -49,8 +49,11 @@ export default class View {
     this._noiseTexture = new GLTexture({
       gl: this.gl,
       minFilter: this.gl.LINEAR,
+      width: 1,
+      height: 1
     });
     Loader.load("src/webgl/noise.png").then((image) => {
+      this._noiseTexture.width = this._noiseTexture.height = undefined;
       this._noiseTexture.data = image;
       this._noiseTexture.generateMipmap();
     });
@@ -125,10 +128,6 @@ export default class View {
   }
  
   update() {
-    if(!this._noiseTexture.data) {
-      return;
-    }
-
     this.gl.viewport(0, 0, this.gl.canvas.width, this.gl.canvas.height);
     this.gl.clear(this.gl.COLOR_BUFFER_BIT | this.gl.DEPTH_BUFFER_BIT);
 

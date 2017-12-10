@@ -37,6 +37,10 @@ window.customElements.define("christmasxp-yolohero-webgl", class extends LoopEle
   }
 
   load() {
+    if(this.view) {
+      return Loader.onLoad;
+    }
+
     this.view = new View({
       gl: this.gl,
       webcam: this.webcam,
@@ -44,6 +48,9 @@ window.customElements.define("christmasxp-yolohero-webgl", class extends LoopEle
       actionsDetector: this.actionsDetector
     });
     this.resize();
+    Loader.onLoad.then(() => {
+      this.update();
+    });
     return Loader.onLoad;
   }
 
