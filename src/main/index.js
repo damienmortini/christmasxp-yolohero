@@ -28,7 +28,7 @@ Loader.load([
   template.innerHTML = templateHTML;
   window.customElements.define("christmasxp-yolohero-main", class extends LoopElement {
     connectedCallback() {
-      if(Environment.mobile || !window.WebGL2RenderingContext) {
+      if(Environment.mobile) {
         this.innerHTML = "<christmasxp-yolohero-fallback></christmasxp-yolohero-fallback>";
         return;
       }

@@ -18,11 +18,18 @@ window.customElements.define("christmasxp-yolohero-webgl", class extends LoopEle
 
     this.canvas = this.querySelector("canvas");
 
-    this.gl = this.canvas.getContext(WebGL2RenderingContext ? "webgl2" : "webgl", {
+    const options = {
       depth: true,
       alpha: false,
       antialias: true
-    });
+    };
+
+    if(!/\bforcewebgl1\b/.test(window.location.search)) {
+      this.gl = this.canvas.getContext("webgl2", options);
+    }
+    if(!this.gl) {
+      this.gl = this.canvas.getContext("webgl", options);
+    }
 
     this.webcam = new WebCam({gl: this.gl});
 

@@ -16,6 +16,13 @@ export default class WebCam {
 
     this.video = document.createElement("video");
     this.video.autoplay = true;
+    this.video.muted = true;
+    this.video.setAttribute("playsinline", "");
+
+    document.body.appendChild(this.video);
+    this.video.style.position = "absolute";
+    this.video.style.top = "0";
+    this.video.style.opacity = "0";
 
     this.motionRatio = 0;
     this.volume = 0;
@@ -221,15 +228,14 @@ export default class WebCam {
 
     navigator.mediaDevices.getUserMedia({ audio: true, video: { width: 320, height: 240, facingMode: "user" } }).then((stream) => {
       this.video.srcObject = stream;
-      this.video.muted = true;
 
-      const audioContext = new AudioContext();
+      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
       const input = audioContext.createMediaStreamSource(stream);
       this._analyser = audioContext.createAnalyser();
       this._audioData = new Uint8Array(this._analyser.frequencyBinCount);
       input.connect(this._analyser);
     }).catch(function (err) {
-      /* handle the error */
+      console.error(err);
     });
   }
   

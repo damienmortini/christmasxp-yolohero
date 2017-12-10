@@ -51,12 +51,24 @@ export default class ActionCubes {
 
     this._time = 0;
 
+    const instanceIDs = new Float32Array(INSTANCE_COUNT);
+    for (let i = 0; i < INSTANCE_COUNT; i++) {
+      instanceIDs[i] = i;
+    }
+
     GLTFLoader.load("src/webgl/objects/objects.gltf").then((data) => {
       for (const mesh of data.meshes) {
         if(mesh.name === "cube") {
           this._mesh = new GLTFMesh({
             gl: this.gl,
-            data: mesh
+            data: mesh,
+            attributes: [
+              ["instanceID", {
+                data: instanceIDs,
+                size: 1,
+                divisor: 1
+              }]
+            ]
           });
         }
       }
@@ -78,6 +90,7 @@ export default class ActionCubes {
         uniform float seed;
         uniform sampler2D noiseTexture;
 
+        in float instanceID;
         in vec3 position;
         in vec3 normal;
         in vec2 uv;
@@ -85,7 +98,6 @@ export default class ActionCubes {
         out vec3 vPosition;
         out vec4 vGLPosition;
         out vec3 vNormal;
-        out vec2 vUv;
 
         ${NoiseShader.random()}
         ${NoiseShader.common()}
@@ -98,25 +110,22 @@ export default class ActionCubes {
 
         void main() {
           vec3 position = position; 
-          float id = float(gl_InstanceID);
-          float randomSeed = random(id + seed);
+          float randomSeed = random(instanceID + seed);
           position += random(randomSeed + position.x + position.y + position.z) * 2. - 1.;          
           position *= .1;
           vec4 randomTexelFromId = texture(noiseTexture, vec2(randomSeed));
           vec3 curl = texture(noiseTexture, randomTexelFromId.xy + seed * 3. + progress * .1).rgb * 2. - 1.;
-          vec3 positionId = vec3(id);
+          vec3 positionId = vec3(instanceID);
           vec4 quaternion = vec4(normalize(curl), 0.);
           position = rotateByQuaternion(position, quaternion);
           
-          // float progress = smoothstep(0., 1., id * .002 + time * .1);
+          // float progress = smoothstep(0., 1., instanceID * .002 + time * .1);
           float progress = smoothstep(0., 1., progress);
           
           position *= max(0., 1. - progress);
           position *= smoothstep(0., .1, progress);
 
           position.xz += curl.xz;
-          // position.z += curl.x;
-          // position.y += -curl.y * 2. + progress * 4.;
           position.y += curl.y * progress * 5.;
 
           vec3 normal = normal;
@@ -126,7 +135,6 @@ export default class ActionCubes {
           vGLPosition = gl_Position;
           vPosition = position;
           vNormal = normal;
-          vUv = uv;
         }
       `,
       fragmentShader: `#version 300 es
@@ -142,7 +150,6 @@ export default class ActionCubes {
 
         in vec3 vPosition;
         in vec3 vNormal;
-        in vec2 vUv;
         in vec4 vGLPosition;
 
         out vec4 fragColor;
@@ -215,7 +222,7 @@ export default class ActionCubes {
           continue;
         }
         object.seed = Math.random();
-        TweenLite.to(object, 1., {
+        TweenLite.to(object, 1, {
           progress: 1,
           // ease: Power2.easeIn,
           onComplete: () => {
