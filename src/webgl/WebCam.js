@@ -227,7 +227,7 @@ export default class WebCam {
     });
     this.debugProgram.attributes.set(this._mesh.attributes);
 
-    navigator.mediaDevices.getUserMedia({ audio: true, video: { width: 320, height: 240, facingMode: "user" } }).then((stream) => {
+    this.ready = navigator.mediaDevices.getUserMedia({ audio: true, video: { width: 320, height: 240, facingMode: "user" } }).then((stream) => {
       this.video.srcObject = stream;
 
       const audioContext = new (window.AudioContext || window.webkitAudioContext)();
@@ -235,8 +235,6 @@ export default class WebCam {
       this._analyser = audioContext.createAnalyser();
       this._audioData = new Uint8Array(this._analyser.frequencyBinCount);
       input.connect(this._analyser);
-    }).catch(function (err) {
-      console.error(err);
     });
   }
   

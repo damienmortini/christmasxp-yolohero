@@ -11,7 +11,8 @@ Loader.load("src/fallback/template.html").then((templateHTML) => {
       let templateClone = document.importNode(template.content, true);
       this.appendChild(templateClone);
 
-      this.classList.add(Environment.mobile ? "mobile" : "features");
+      this.classList.add("features");
+      // this.classList.add(Environment.mobile ? "mobile" : "features");
     }
   });
 });

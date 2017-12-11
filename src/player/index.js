@@ -71,6 +71,7 @@ Loader.load("src/player/template.html").then((templateHTML) => {
       this._loadPromise = this._loadPromise || new Promise((resolve) => {
         if(this.querySelector("#soundcloud-player")) {
           SoundCloudAPI.load().then(() => {
+            console.log("Soudcloud API loaded");
             const widget = SC.Widget(this.querySelector("iframe"));
             this._player = {
               currentTime: 0,
@@ -89,6 +90,7 @@ Loader.load("src/player/template.html").then((templateHTML) => {
               this.dispatchEvent(new Event("ended"));
             });
             widget.bind(SC.Widget.Events.READY, () => {
+              console.log("Widget ready");
               this.volume = MUTE ? 0 : 1;
               widget.seekTo(OFFSET_TIME * 1000);
               resolve();

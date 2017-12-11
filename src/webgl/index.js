@@ -37,8 +37,8 @@ window.customElements.define("christmasxp-yolohero-webgl", class extends LoopEle
   }
 
   load() {
-    if(this.view) {
-      return Loader.onLoad;
+    if(this._promise) {
+      return this._promise;
     }
 
     this.view = new View({
@@ -51,7 +51,9 @@ window.customElements.define("christmasxp-yolohero-webgl", class extends LoopEle
     Loader.onLoad.then(() => {
       this.update();
     });
-    return Loader.onLoad;
+
+    this._promise = Promise.all([Loader.onLoad, this.webcam.ready]);
+    return this._promise;
   }
 
   set score(value) {
